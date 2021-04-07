@@ -1,0 +1,42 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/skpro19/catkin_ws/devel/include/**",
+                "/opt/ros/melodic/include/**",
+                "/home/skpro19/catkin_ws/src/beginner_tutorials/include/**",
+                "/home/skpro19/catkin_ws/src/bot_mapper/include/**",
+                "/home/skpro19/catkin_ws/src/gazebo_ros_pkgs/gazebo_plugins/include/**",
+                "/home/skpro19/catkin_ws/src/gazebo_ros_pkgs/gazebo_ros/include/**",
+                "/home/skpro19/catkin_ws/src/gazebo_ros_pkgs/gazebo_ros_control/include/**",
+                "/home/skpro19/catkin_ws/src/simple_navigation_goals/include/**",
+                "/home/skpro19/catkin_ws/src/navigation/costmap_2d/include/**",
+                "/home/skpro19/catkin_ws/src/turtlebot3_simulations/turtlebot3_fake/include/**",
+                "/home/skpro19/catkin_ws/src/turtlebot3_simulations/turtlebot3_gazebo/include/**",
+                "/home/skpro19/catkin_ws/devel/include/bot_mapper/",
+                "/home/skpro19/catkin_ws/src/geometry2/tf2/include/**",
+                "/home/skpro19/catkin_ws/src/geometry2/tf2_bullet/include/**",
+                "/home/skpro19/catkin_ws/src/geometry2/tf2_eigen/include/**",
+                "/home/skpro19/catkin_ws/src/geometry2/tf2_geometry_msgs/include/**",
+                "/home/skpro19/catkin_ws/src/geometry2/tf2_kdl/include/**",
+                "/home/skpro19/catkin_ws/src/geometry2/tf2_msgs/include/**",
+                "/home/skpro19/catkin_ws/src/geometry2/tf2_ros/include/**",
+                "/home/skpro19/catkin_ws/src/geometry2/tf2_sensor_msgs/include/**",
+                "/home/skpro19/catkin_ws/src/turtlebot3/turtlebot3_slam/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}

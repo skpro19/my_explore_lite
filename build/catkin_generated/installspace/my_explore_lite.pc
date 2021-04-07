@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: my_explore_lite
+Description: Description of my_explore_lite
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: nav_msgs roscpp std_msgs message_runtime
