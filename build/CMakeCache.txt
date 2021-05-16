@@ -334,6 +334,9 @@ genpy_DIR:PATH=/opt/ros/melodic/share/genpy/cmake
 //The directory containing a CMake configuration file for geometry_msgs.
 geometry_msgs_DIR:PATH=/opt/ros/melodic/share/geometry_msgs/cmake
 
+//The directory containing a CMake configuration file for geometry_msgsroscpp.
+geometry_msgsroscpp_DIR:PATH=geometry_msgsroscpp_DIR-NOTFOUND
+
 //Value Computed by CMake
 gmock_BINARY_DIR:STATIC=/home/skpro19/catkin_ws/src/my_explore_lite/build/gtest/googlemock
 
@@ -390,7 +393,7 @@ laser_geometry_DIR:PATH=/opt/ros/melodic/share/laser_geometry/cmake
 lib:FILEPATH=/home/skpro19/catkin_ws/devel/.private/voxel_grid/lib/libvoxel_grid.so
 
 //The directory containing a CMake configuration file for map_msgs.
-map_msgs_DIR:PATH=/home/skpro19/catkin_ws/devel/share/map_msgs/cmake
+map_msgs_DIR:PATH=/opt/ros/melodic/share/map_msgs/cmake
 
 //The directory containing a CMake configuration file for message_filters.
 message_filters_DIR:PATH=/opt/ros/melodic/share/message_filters/cmake
@@ -401,8 +404,14 @@ message_generation_DIR:PATH=/opt/ros/melodic/share/message_generation/cmake
 //The directory containing a CMake configuration file for message_runtime.
 message_runtime_DIR:PATH=/opt/ros/melodic/share/message_runtime/cmake
 
+//The directory containing a CMake configuration file for move_base.
+move_base_DIR:PATH=/home/skpro19/catkin_ws/devel/share/move_base/cmake
+
+//Dependencies for target
+move_base_LIB_DEPENDS:STATIC=
+
 //The directory containing a CMake configuration file for move_base_msgs.
-move_base_msgs_DIR:PATH=/home/skpro19/catkin_ws/devel/share/move_base_msgs/cmake
+move_base_msgs_DIR:PATH=/opt/ros/melodic/share/move_base_msgs/cmake
 
 //Value Computed by CMake
 my_explore_lite_BINARY_DIR:STATIC=/home/skpro19/catkin_ws/src/my_explore_lite/build
@@ -456,16 +465,16 @@ sensor_msgs_DIR:PATH=/opt/ros/melodic/share/sensor_msgs/cmake
 std_msgs_DIR:PATH=/opt/ros/melodic/share/std_msgs/cmake
 
 //The directory containing a CMake configuration file for tf2.
-tf2_DIR:PATH=/home/skpro19/catkin_ws/devel/share/tf2/cmake
+tf2_DIR:PATH=/opt/ros/melodic/share/tf2/cmake
 
 //The directory containing a CMake configuration file for tf2_msgs.
-tf2_msgs_DIR:PATH=/home/skpro19/catkin_ws/devel/share/tf2_msgs/cmake
+tf2_msgs_DIR:PATH=/opt/ros/melodic/share/tf2_msgs/cmake
 
 //The directory containing a CMake configuration file for tf2_py.
-tf2_py_DIR:PATH=/home/skpro19/catkin_ws/devel/share/tf2_py/cmake
+tf2_py_DIR:PATH=/opt/ros/melodic/share/tf2_py/cmake
 
 //The directory containing a CMake configuration file for tf2_ros.
-tf2_ros_DIR:PATH=/home/skpro19/catkin_ws/devel/share/tf2_ros/cmake
+tf2_ros_DIR:PATH=/opt/ros/melodic/share/tf2_ros/cmake
 
 //The directory containing a CMake configuration file for tf.
 tf_DIR:PATH=/opt/ros/melodic/share/tf/cmake

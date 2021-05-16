@@ -57,42 +57,41 @@ include CMakeFiles/explore_node.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/explore_node.dir/flags.make
 
-CMakeFiles/explore_node.dir/src/explore.cpp.o: CMakeFiles/explore_node.dir/flags.make
-CMakeFiles/explore_node.dir/src/explore.cpp.o: ../src/explore.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/explore_node.dir/src/explore.cpp.o"
-	/usr/bin/x86_64-linux-gnu-g++-7  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/explore_node.dir/src/explore.cpp.o -c /home/skpro19/catkin_ws/src/my_explore_lite/src/explore.cpp
+CMakeFiles/explore_node.dir/src/main.cpp.o: CMakeFiles/explore_node.dir/flags.make
+CMakeFiles/explore_node.dir/src/main.cpp.o: ../src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/explore_node.dir/src/main.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-7  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/explore_node.dir/src/main.cpp.o -c /home/skpro19/catkin_ws/src/my_explore_lite/src/main.cpp
 
-CMakeFiles/explore_node.dir/src/explore.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/explore_node.dir/src/explore.cpp.i"
-	/usr/bin/x86_64-linux-gnu-g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/skpro19/catkin_ws/src/my_explore_lite/src/explore.cpp > CMakeFiles/explore_node.dir/src/explore.cpp.i
+CMakeFiles/explore_node.dir/src/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/explore_node.dir/src/main.cpp.i"
+	/usr/bin/x86_64-linux-gnu-g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/skpro19/catkin_ws/src/my_explore_lite/src/main.cpp > CMakeFiles/explore_node.dir/src/main.cpp.i
 
-CMakeFiles/explore_node.dir/src/explore.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/explore_node.dir/src/explore.cpp.s"
-	/usr/bin/x86_64-linux-gnu-g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/skpro19/catkin_ws/src/my_explore_lite/src/explore.cpp -o CMakeFiles/explore_node.dir/src/explore.cpp.s
+CMakeFiles/explore_node.dir/src/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/explore_node.dir/src/main.cpp.s"
+	/usr/bin/x86_64-linux-gnu-g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/skpro19/catkin_ws/src/my_explore_lite/src/main.cpp -o CMakeFiles/explore_node.dir/src/main.cpp.s
 
-CMakeFiles/explore_node.dir/src/explore.cpp.o.requires:
+CMakeFiles/explore_node.dir/src/main.cpp.o.requires:
 
-.PHONY : CMakeFiles/explore_node.dir/src/explore.cpp.o.requires
+.PHONY : CMakeFiles/explore_node.dir/src/main.cpp.o.requires
 
-CMakeFiles/explore_node.dir/src/explore.cpp.o.provides: CMakeFiles/explore_node.dir/src/explore.cpp.o.requires
-	$(MAKE) -f CMakeFiles/explore_node.dir/build.make CMakeFiles/explore_node.dir/src/explore.cpp.o.provides.build
-.PHONY : CMakeFiles/explore_node.dir/src/explore.cpp.o.provides
+CMakeFiles/explore_node.dir/src/main.cpp.o.provides: CMakeFiles/explore_node.dir/src/main.cpp.o.requires
+	$(MAKE) -f CMakeFiles/explore_node.dir/build.make CMakeFiles/explore_node.dir/src/main.cpp.o.provides.build
+.PHONY : CMakeFiles/explore_node.dir/src/main.cpp.o.provides
 
-CMakeFiles/explore_node.dir/src/explore.cpp.o.provides.build: CMakeFiles/explore_node.dir/src/explore.cpp.o
+CMakeFiles/explore_node.dir/src/main.cpp.o.provides.build: CMakeFiles/explore_node.dir/src/main.cpp.o
 
 
 # Object files for target explore_node
 explore_node_OBJECTS = \
-"CMakeFiles/explore_node.dir/src/explore.cpp.o"
+"CMakeFiles/explore_node.dir/src/main.cpp.o"
 
 # External object files for target explore_node
 explore_node_EXTERNAL_OBJECTS =
 
-devel/lib/my_explore_lite/explore_node: CMakeFiles/explore_node.dir/src/explore.cpp.o
+devel/lib/my_explore_lite/explore_node: CMakeFiles/explore_node.dir/src/main.cpp.o
 devel/lib/my_explore_lite/explore_node: CMakeFiles/explore_node.dir/build.make
 devel/lib/my_explore_lite/explore_node: /home/skpro19/catkin_ws/devel/.private/costmap_2d/lib/libcostmap_2d.so
 devel/lib/my_explore_lite/explore_node: /home/skpro19/catkin_ws/devel/.private/costmap_2d/lib/liblayers.so
-devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libdynamic_reconfigure_config_init_mutex.so
 devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/liblaser_geometry.so
 devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libtf.so
 devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libclass_loader.so
@@ -103,11 +102,12 @@ devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/librospack.so
 devel/lib/my_explore_lite/explore_node: /usr/lib/x86_64-linux-gnu/libpython2.7.so
 devel/lib/my_explore_lite/explore_node: /usr/lib/x86_64-linux-gnu/libboost_program_options.so
 devel/lib/my_explore_lite/explore_node: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
-devel/lib/my_explore_lite/explore_node: /home/skpro19/catkin_ws/devel/.private/tf2_ros/lib/libtf2_ros.so
+devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libtf2_ros.so
 devel/lib/my_explore_lite/explore_node: /home/skpro19/catkin_ws/devel/.private/actionlib/lib/libactionlib.so
 devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libmessage_filters.so
-devel/lib/my_explore_lite/explore_node: /home/skpro19/catkin_ws/devel/.private/tf2/lib/libtf2.so
+devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libtf2.so
 devel/lib/my_explore_lite/explore_node: /home/skpro19/catkin_ws/devel/.private/voxel_grid/lib/libvoxel_grid.so
+devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libdynamic_reconfigure_config_init_mutex.so
 devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libroscpp.so
 devel/lib/my_explore_lite/explore_node: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so
 devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/librosconsole.so
@@ -115,8 +115,8 @@ devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/librosconsole_log4c
 devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/librosconsole_backend_interface.so
 devel/lib/my_explore_lite/explore_node: /usr/lib/x86_64-linux-gnu/liblog4cxx.so
 devel/lib/my_explore_lite/explore_node: /usr/lib/x86_64-linux-gnu/libboost_regex.so
-devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libroscpp_serialization.so
 devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libxmlrpcpp.so
+devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libroscpp_serialization.so
 devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/librostime.so
 devel/lib/my_explore_lite/explore_node: /opt/ros/melodic/lib/libcpp_common.so
 devel/lib/my_explore_lite/explore_node: /usr/lib/x86_64-linux-gnu/libboost_system.so
@@ -135,7 +135,7 @@ CMakeFiles/explore_node.dir/build: devel/lib/my_explore_lite/explore_node
 
 .PHONY : CMakeFiles/explore_node.dir/build
 
-CMakeFiles/explore_node.dir/requires: CMakeFiles/explore_node.dir/src/explore.cpp.o.requires
+CMakeFiles/explore_node.dir/requires: CMakeFiles/explore_node.dir/src/main.cpp.o.requires
 
 .PHONY : CMakeFiles/explore_node.dir/requires
 

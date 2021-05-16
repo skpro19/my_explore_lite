@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/skpro19/catkin_ws/src/my_explore_lite/src/main.cpp" "/home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles/explore_node.dir/src/main.cpp.o"
+  "/home/skpro19/catkin_ws/src/my_explore_lite/src/main.cpp" "/home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles/main_node.dir/src/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -19,11 +19,8 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../include"
   "/home/skpro19/catkin_ws/devel/.private/actionlib/include"
-  "/home/skpro19/catkin_ws/devel/.private/costmap_2d/include"
   "/home/skpro19/catkin_ws/devel/.private/move_base/include"
   "/home/skpro19/catkin_ws/src/actionlib/include"
-  "/home/skpro19/catkin_ws/src/navigation/voxel_grid/include"
-  "/home/skpro19/catkin_ws/src/navigation/costmap_2d/include"
   "/opt/ros/melodic/include"
   "/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   "/usr/include/eigen3"

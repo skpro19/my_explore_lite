@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/explore_node.dir/src/explore.cpp.o"
+  "CMakeFiles/explore_node.dir/src/main.cpp.o"
   "devel/lib/my_explore_lite/explore_node.pdb"
   "devel/lib/my_explore_lite/explore_node"
 )

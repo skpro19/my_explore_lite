@@ -1,8 +1,8 @@
 [
 {
   "directory": "/home/skpro19/catkin_ws/src/my_explore_lite/build",
-  "command": "/usr/bin/x86_64-linux-gnu-g++-7  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"my_explore_lite\\\" -I/home/skpro19/catkin_ws/src/my_explore_lite/include -I/home/skpro19/catkin_ws/devel/.private/move_base_msgs/include -I/home/skpro19/catkin_ws/devel/.private/actionlib/include -I/home/skpro19/catkin_ws/devel/.private/costmap_2d/include -I/home/skpro19/catkin_ws/devel/.private/tf2_msgs/include -I/home/skpro19/catkin_ws/devel/.private/map_msgs/include -I/home/skpro19/catkin_ws/src/actionlib/include -I/home/skpro19/catkin_ws/src/geometry2/tf2_msgs/include -I/home/skpro19/catkin_ws/src/geometry2/tf2/include -I/home/skpro19/catkin_ws/src/geometry2/tf2_ros/include -I/home/skpro19/catkin_ws/src/navigation/voxel_grid/include -I/home/skpro19/catkin_ws/src/navigation/costmap_2d/include -I/opt/ros/melodic/include -I/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/eigen3  -g   -std=c++11 -o CMakeFiles/explore_node.dir/src/explore.cpp.o -c /home/skpro19/catkin_ws/src/my_explore_lite/src/explore.cpp",
-  "file": "/home/skpro19/catkin_ws/src/my_explore_lite/src/explore.cpp"
+  "command": "/usr/bin/x86_64-linux-gnu-g++-7  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"my_explore_lite\\\" -I/home/skpro19/catkin_ws/src/my_explore_lite/include -I/home/skpro19/catkin_ws/devel/.private/actionlib/include -I/home/skpro19/catkin_ws/devel/.private/costmap_2d/include -I/home/skpro19/catkin_ws/devel/.private/move_base/include -I/home/skpro19/catkin_ws/src/actionlib/include -I/home/skpro19/catkin_ws/src/navigation/voxel_grid/include -I/home/skpro19/catkin_ws/src/navigation/costmap_2d/include -I/opt/ros/melodic/include -I/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/eigen3  -g   -std=c++11 -o CMakeFiles/explore_node.dir/src/main.cpp.o -c /home/skpro19/catkin_ws/src/my_explore_lite/src/main.cpp",
+  "file": "/home/skpro19/catkin_ws/src/my_explore_lite/src/main.cpp"
 },
 {
   "directory": "/home/skpro19/catkin_ws/src/my_explore_lite/build/gtest/googlemock",

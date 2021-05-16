@@ -25,7 +25,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 -->
 <launch>
 
-  <arg name="no_static_map" default="true"/>
+  <arg name="no_static_map" default="false"/>
 
  
   <node pkg="my_explore_lite" type="explore_node" respawn="false" name="explore_node" output="screen">

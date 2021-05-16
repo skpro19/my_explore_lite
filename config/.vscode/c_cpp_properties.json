@@ -1,0 +1,35 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/skpro19/catkin_ws/devel/include/**",
+        "/opt/ros/melodic/include/**",
+        "/home/skpro19/catkin_ws/src/actionlib/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/amcl/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/base_local_planner/include/**",
+        "/home/skpro19/catkin_ws/src/bot_mapper/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/carrot_planner/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/clear_costmap_recovery/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/costmap_2d/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/dwa_local_planner/include/**",
+        "/home/skpro19/catkin_ws/src/m-explore/explore/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/global_planner/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/map_server/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/move_base/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/move_slow_and_clear/include/**",
+        "/home/skpro19/catkin_ws/src/my_explore_lite/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/nav_core/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/navfn/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/rotate_recovery/include/**",
+        "/home/skpro19/catkin_ws/src/navigation/voxel_grid/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}

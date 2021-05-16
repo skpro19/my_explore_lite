@@ -7,10 +7,12 @@
             },
             "includePath": [
                 "/home/skpro19/catkin_ws/devel/include/**",
+                "/home/skpro19/catkin_ws/src/navigation/move_base/include/**",
                 "/opt/ros/melodic/include/**",
                 "/home/skpro19/catkin_ws/src/beginner_tutorials/include/**",
                 "/home/skpro19/catkin_ws/src/bot_mapper/include/**",
                 "/home/skpro19/catkin_ws/src/gazebo_ros_pkgs/gazebo_plugins/include/**",
+                "/home/skpro19/catkin_ws/src/navigation/move_base/include/**",
                 "/home/skpro19/catkin_ws/src/gazebo_ros_pkgs/gazebo_ros/include/**",
                 "/home/skpro19/catkin_ws/src/gazebo_ros_pkgs/gazebo_ros_control/include/**",
                 "/home/skpro19/catkin_ws/src/simple_navigation_goals/include/**",

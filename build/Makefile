@@ -181,6 +181,19 @@ explore_node/fast:
 .PHONY : explore_node/fast
 
 #=============================================================================
+# Target rules for targets named move_base_gencfg
+
+# Build rule for target.
+move_base_gencfg: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 move_base_gencfg
+.PHONY : move_base_gencfg
+
+# fast build rule for target.
+move_base_gencfg/fast:
+	$(MAKE) -f CMakeFiles/move_base_gencfg.dir/build.make CMakeFiles/move_base_gencfg.dir/build
+.PHONY : move_base_gencfg/fast
+
+#=============================================================================
 # Target rules for targets named visualization_msgs_generate_messages_py
 
 # Build rule for target.
@@ -1298,32 +1311,32 @@ gtest/fast:
 	$(MAKE) -f gtest/googlemock/gtest/CMakeFiles/gtest.dir/build.make gtest/googlemock/gtest/CMakeFiles/gtest.dir/build
 .PHONY : gtest/fast
 
-src/explore.o: src/explore.cpp.o
+src/main.o: src/main.cpp.o
 
-.PHONY : src/explore.o
+.PHONY : src/main.o
 
 # target to build an object file
-src/explore.cpp.o:
-	$(MAKE) -f CMakeFiles/explore_node.dir/build.make CMakeFiles/explore_node.dir/src/explore.cpp.o
-.PHONY : src/explore.cpp.o
+src/main.cpp.o:
+	$(MAKE) -f CMakeFiles/explore_node.dir/build.make CMakeFiles/explore_node.dir/src/main.cpp.o
+.PHONY : src/main.cpp.o
 
-src/explore.i: src/explore.cpp.i
+src/main.i: src/main.cpp.i
 
-.PHONY : src/explore.i
+.PHONY : src/main.i
 
 # target to preprocess a source file
-src/explore.cpp.i:
-	$(MAKE) -f CMakeFiles/explore_node.dir/build.make CMakeFiles/explore_node.dir/src/explore.cpp.i
-.PHONY : src/explore.cpp.i
+src/main.cpp.i:
+	$(MAKE) -f CMakeFiles/explore_node.dir/build.make CMakeFiles/explore_node.dir/src/main.cpp.i
+.PHONY : src/main.cpp.i
 
-src/explore.s: src/explore.cpp.s
+src/main.s: src/main.cpp.s
 
-.PHONY : src/explore.s
+.PHONY : src/main.s
 
 # target to generate assembly for a file
-src/explore.cpp.s:
-	$(MAKE) -f CMakeFiles/explore_node.dir/build.make CMakeFiles/explore_node.dir/src/explore.cpp.s
-.PHONY : src/explore.cpp.s
+src/main.cpp.s:
+	$(MAKE) -f CMakeFiles/explore_node.dir/build.make CMakeFiles/explore_node.dir/src/main.cpp.s
+.PHONY : src/main.cpp.s
 
 # Help Target
 help:
@@ -1334,6 +1347,7 @@ help:
 	@echo "... install"
 	@echo "... list_install_components"
 	@echo "... explore_node"
+	@echo "... move_base_gencfg"
 	@echo "... visualization_msgs_generate_messages_py"
 	@echo "... visualization_msgs_generate_messages_nodejs"
 	@echo "... visualization_msgs_generate_messages_eus"
@@ -1425,9 +1439,9 @@ help:
 	@echo "... gmock"
 	@echo "... gtest_main"
 	@echo "... gtest"
-	@echo "... src/explore.o"
-	@echo "... src/explore.i"
-	@echo "... src/explore.s"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
 .PHONY : help
 
 

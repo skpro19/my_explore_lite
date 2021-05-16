@@ -1,6 +1,7 @@
 /home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles/install.dir
 /home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles/list_install_components.dir
 /home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles/explore_node.dir
+/home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles/move_base_gencfg.dir
 /home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles/visualization_msgs_generate_messages_py.dir
 /home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles/visualization_msgs_generate_messages_nodejs.dir
 /home/skpro19/catkin_ws/src/my_explore_lite/build/CMakeFiles/visualization_msgs_generate_messages_eus.dir

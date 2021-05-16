@@ -185,7 +185,7 @@ foreach(t ${my_explore_lite_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "nav_msgs;roscpp;std_msgs;message_runtime")
+set(depends "nav_msgs;roscpp;std_msgs;message_runtime;move_base_msgs;move_base;visualization_msgs")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls
