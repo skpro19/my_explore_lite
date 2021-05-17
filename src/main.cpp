@@ -23,18 +23,16 @@
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient; 
 
-costmap_2d::Costmap2D my_costmap;
-
 //define global variables
 
-int size_x = 4000; 
-int size_y = 4000;
 
 using namespace std;
 
 int v[256]; //Do not delete this
 
 int outer_m[1010][1010] , inner_m[1010][1010];
+
+int size_x = 4000, size_y= 4000;
 
 int vis[4010][4010], frontier_vis[4010][4010] ; 
 
@@ -517,7 +515,6 @@ void explore_level_two(costmap_2d::Costmap2DROS *global_costmap) {
     }
 }
 
-
 void explore_level_one(costmap_2d::Costmap2DROS *global_costmap) {
 
     
@@ -618,8 +615,6 @@ void explore_level_one(costmap_2d::Costmap2DROS *global_costmap) {
 
 }
 
-
-
 void detect_initial_frontiers(costmap_2d::Costmap2DROS* global_costmap) {
 
     geometry_msgs::PoseStamped global_pose;
@@ -685,7 +680,6 @@ void detect_initial_frontiers(costmap_2d::Costmap2DROS* global_costmap) {
 
 }
 
-
 void manipulate_center_og(costmap_2d::Costmap2D* global_costmap_) {
 
     unsigned char* global_og = global_costmap_->getCharMap();
@@ -728,7 +722,6 @@ void manipulate_center_og(costmap_2d::Costmap2D* global_costmap_) {
     }
 
 }
-
 
 void manipulate_og(costmap_2d::Costmap2D* global_costmap_) {
 
@@ -837,6 +830,261 @@ void initialpose_callback2(const geometry_msgs::PoseWithCovarianceStamped::Const
 
 }
 
+ 
+class Explore{
+
+
+    public:
+
+        Explore(ros::NodeHandle &nh, tf2_ros::Buffer &buffer);
+
+    private: 
+
+        //Private member functions
+        
+        bool is_frontier(size_t mx, size_t my);
+        void explore_level_three();
+        void go_to_cell(size_t mx, size_t my);
+        
+        
+        //Private member variables
+        
+        costmap_2d::Costmap2DROS* global_costmap, *local_costmap;
+        costmap_2d::Costmap2D* global_costmap_, *local_costmap_;
+
+        unsigned char *global_og;
+
+        string global_frame, robot_base_frame;
+
+        size_t size_x, size_y;  //represent the size of the global_costmap 
+
+        double init_wx, init_wy; //initial pose of the bot in world frame (odom/ map)
+
+};
+
+Explore::Explore(ros::NodeHandle &nh, tf2_ros::Buffer &buffer) {
+
+    cout << "Inside the Explore class constructor!" << endl;
+
+    global_costmap = new costmap_2d::Costmap2DROS("global_costmap", buffer);  
+    local_costmap = new costmap_2d::Costmap2DROS("local_costmap", buffer);
+
+    global_costmap_ = temp_global_costmap_ =  global_costmap->getCostmap();  
+
+    global_og = global_costmap_->getCharMap();
+    
+    size_x = global_costmap_->getSizeInCellsX();
+    size_y = global_costmap_->getSizeInCellsY(); 
+
+    geometry_msgs::PoseStamped global_pose; 
+
+    bool flag = global_costmap->getRobotPose(global_pose); 
+
+    if(flag) {cout << "global pose found successfully!" << endl;}
+
+    init_wx = global_pose.pose.position.x , init_wy = global_pose.pose.position.y;
+
+    cout << "init_wx: " << init_wx << " init_wy: " << init_wy << endl;
+
+    explore_level_three();
+
+}
+
+bool Explore::is_frontier(size_t mx, size_t my) {
+
+    bool is_frontier = false;
+
+    for(int i = (int)mx - 1; i <= mx + 1; i++) {
+
+        for(int j = (int)my - 1; j <= my + 1; j++) {
+            
+            if(is_frontier) {   return is_frontier;  }
+
+            if(i == mx && j == my) {continue; }
+
+            if(i < 0 || i >= size_x || j < 0 || j >= size_y) {continue ; }
+
+            unsigned char cell_cost = global_costmap_->getCost(i, j);
+
+            if(cell_cost == costmap_2d::FREE_SPACE) { is_frontier = true; }
+
+        }
+    }
+}
+
+void Explore::go_to_cell(size_t mx, size_t my) {
+
+    double wx, wy; 
+
+    global_costmap_->mapToWorld(mx, my, wx, wy);
+    
+    geometry_msgs::Pose target_pose; 
+
+    target_pose.position.x = wx; 
+    target_pose.position.y = wy; 
+    target_pose.position.z= 0 ; 
+
+    target_pose.orientation.w = 1; 
+    target_pose.orientation.x = target_pose.orientation.y = target_pose.orientation.z = 0 ;
+
+
+    cout << "Calling the MoveBaseClient now!" << endl;
+    MoveBaseClient ac("move_base", true);
+
+    while(!ac.waitForServer(ros::Duration(5.0))) {
+
+        ROS_INFO("Waiting for move_base action server to come up");
+
+    }
+
+    move_base_msgs::MoveBaseGoal goal; 
+
+    goal.target_pose.header.frame_id= "map" ; 
+
+    goal.target_pose.header.stamp= ros::Time::now();
+
+    goal.target_pose.pose = target_pose; 
+    goal.target_pose.pose.orientation.w = 1.0; 
+
+    ROS_INFO("Sending goal");
+
+    ac.sendGoal(goal); 
+
+    ac.waitForResult(); 
+
+    if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+        ROS_INFO("Successfully moved to goal");
+    }
+
+    else {
+        ROS_INFO("Failed to move to the goal");
+    }
+
+}
+
+void Explore::explore_level_three() {
+
+    
+
+    ros::Rate loop_rate(0.1);
+
+    costmap_2d::Costmap2D* global_costmap_ = global_costmap->getCostmap();
+
+    int free_cell_cnt =0 ; 
+
+    vector<pair<size_t, size_t> > frontiers;
+
+    memset(vis, -1, sizeof(vis)) ;
+    memset(frontier_vis, -1, sizeof(frontier_vis));
+
+    while(ros::ok()) {
+
+        cout << "------------- RESTARTING INSIDE THE MAIN WHILE LOOP! ------------------------" << endl;
+        cout <<"Sleeping for 5 seconds!" << endl;
+
+        ros::Duration(5.0).sleep();
+
+       unique_lock<costmap_2d::Costmap2D::mutex_t> lock(*(global_costmap_->getMutex()));
+        
+        geometry_msgs::PoseStamped global_pose; 
+
+        bool flag = global_costmap->getRobotPose(global_pose);
+
+        unsigned int mx , my; 
+
+        global_costmap_->worldToMap(global_pose.pose.position.x , global_pose.pose.position.y, mx, my);
+
+        queue<pair<unsigned int, unsigned int> > q; 
+
+        q.push({mx, my});
+
+        cout << "global_pose mx: " << mx << " my: " << my << endl;
+
+        while(!q.empty()) {
+
+            
+            pair<unsigned int, unsigned int> front = q.front(); 
+            
+            int cx =  front.first , cy = front.second; 
+
+            cout << "cx: " << cx << " cy: " << cy << endl;
+
+            vis[cx][cy] = 1;
+
+            q.pop(); 
+
+            for(int i = cx - 10; i <= cx+ 10; i++) {
+
+                for(int j = cy - 10; j <= cy + 10 ; j++) {
+
+                    if(i == cx && j == cy) {continue;}
+
+                    if(i < 0 || i >= size_x || j < 0 || j >= size_y ) {continue;}
+
+                    if(vis[i][j] > 0) {continue;}
+
+                    unsigned char cell_cost = global_costmap_->getCost(i, j);
+
+                    //cout << "(" << i << "," << j << "): " << (int)cell_cost << endl; 
+
+                    if(cell_cost == costmap_2d::FREE_SPACE && (vis[i][j] == -1) ) {
+                        
+                        q.push({i, j});
+                        free_cell_cnt++;
+                        vis[i][j] = 1;
+                    }
+
+                    else if(cell_cost == costmap_2d::NO_INFORMATION && is_frontier(i, j)) {
+                        
+                       if(frontier_vis[i][j] > 0) {continue;}
+
+                        frontiers.push_back({i, j});
+                        frontier_vis[i][j] = 1;
+
+                    }
+
+
+                }
+            }    
+
+        }
+        
+        cout  << "free_cell_cnt: " << free_cell_cnt << endl;
+
+        int sz = (int)frontiers.size(); 
+        cout << "sz: " << sz << endl; 
+        
+        //
+        
+        if(sz > 0) {
+            
+            
+            pair<unsigned int, unsigned int> target = frontiers[sz/2];
+
+            cout << "current location: (" << mx << "," << ")" << endl;
+
+           // publish_marker_array(nh, frontiers,global_costmap_);
+
+            cout << "Out of the publish marker array function" << endl;
+            cout << "Attempting to move to a frontier point - (" << target.first <<"," << target.second << ")" << endl;
+            
+            go_to_cell(target.first, target.second);
+
+        }
+
+        lock.unlock();
+
+        ros::spinOnce();
+        
+        //loop_rate.sleep();
+
+    }
+
+
+}
+
+
+
 
 
 int main(int argc, char** argv) {
@@ -845,73 +1093,14 @@ int main(int argc, char** argv) {
 
     ros::NodeHandle nh("explore_node"); 
 
-    //ros::NodeHandle nh{};
-
+   
     tf2_ros::Buffer buffer(ros::Duration(10));
     tf2_ros::TransformListener tf(buffer);
     
-    string global_frame, robot_base_frame;  
-
-    nh.param("global_costmap/global_frame", global_frame, std::string("map"));
-    nh.param("global_costmap/robot_base_frame", robot_base_frame, std::string("base_link"));
-
-    costmap_2d::Costmap2DROS *global_costmap = new costmap_2d::Costmap2DROS("global_costmap", buffer);    
-    costmap_2d::Costmap2DROS *local_costmap = new costmap_2d::Costmap2DROS("local_costmap", buffer);
-
-
-    cout << "global_frame: " << global_frame << endl; 
-    cout << "robot_base_frame: " << robot_base_frame << endl;
-
-
-
-    costmap_2d::Costmap2D* global_costmap_ = temp_global_costmap_ =  global_costmap->getCostmap();  
-
-
-    unsigned char* global_og = global_costmap_->getCharMap();
     
+    Explore explore_one(nh, buffer);
 
-    
-    //unsigned char* global_og = global_costmap->getCostmap()->getCharMap();
-
-    size_t size_x = global_costmap_->getSizeInCellsX();
-    size_t size_y = global_costmap_->getSizeInCellsY(); 
-
-    cout << "size_x: " << size_x << " size_y: " << size_y << endl;
-
-    size_t idx = global_costmap_->getIndex(10, 10);
-
-    cout << "idx: " << idx << endl;
-
-    cout <<"global_og[idx]: " << (int)global_og[idx] << endl;
-    
-    //
-    cout << "FREE_SPACE: " << costmap_2d::FREE_SPACE << " " << (int)costmap_2d::FREE_SPACE << endl; 
-
-    cout << "NO_INFORMATION: " << costmap_2d::NO_INFORMATION << " " << (int)costmap_2d::NO_INFORMATION << endl;
-
-
-    //ros::Subscriber sub = nh.subscribe("/initialpose", 1000, initialpose_callback2);
-
-        geometry_msgs::PoseStamped global_pose; 
-
-        bool flag = global_costmap->getRobotPose(global_pose); 
-
-        if(flag) {cout << "global pose found successfully!" << endl;}
-
-        double wx = global_pose.pose.position.x , wy = global_pose.pose.position.y;
-
-    cout << "wx: " << wx << " wy: " << wy << endl;
-
-    //publish_markers(nh, global_costmap_,  wx, wy);
-
-    explore_level_three(global_costmap, nh);  
-
-
-    //ros::spin();
-
-    //cout << 1 << " " << 2;
-
-
+   
     return 0;
 }   
 
