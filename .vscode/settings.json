@@ -6,7 +6,8 @@
     "files.associations": {
         "ostream": "cpp",
         "iostream": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "condition_variable": "cpp"
     },
     "python.analysis.extraPaths": [
         "/home/skpro19/catkin_ws/devel/lib/python2.7/dist-packages",
