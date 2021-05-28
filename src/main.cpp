@@ -34,6 +34,8 @@ class Explore{
         void explore_level_four();
         void publish_markers_array(vector<pair<size_t, size_t> > &frontiers_);
         
+        void explore_level_five();
+        
         vector<vector<pair<size_t, size_t> > > frontier_collection;
 
     private: 
@@ -44,8 +46,12 @@ class Explore{
         void go_to_cell(size_t mx, size_t my);
         void publish_markers();
         bool has_free_cell_neighbour(int a, int b);
+        geometry_msgs::Pose get_currrent_pose_map();    
+        void go_to_frontier_median();
 
-        
+
+
+        vector<pair<size_t, size_t> > get_target_frontier();
         
         costmap_2d::Costmap2DROS* global_costmap, *local_costmap;
         costmap_2d::Costmap2D* global_costmap_, *local_costmap_;
@@ -214,7 +220,7 @@ void Explore::publish_markers() {
 
    
     marker.ns = nh_.getNamespace();
-    cout << "namespace: " << marker.ns << endl;
+    //cout << "namespace: " << marker.ns << endl;
 
     marker.id = 1;
     marker.type = visualization_msgs::Marker::SPHERE;
@@ -248,7 +254,7 @@ void Explore::publish_markers() {
     ros::Duration del(3000.0);
     ros::Time end = start + del ;
 
-    cout << "Loop starts at: " << ros::Time::now().toSec() << endl;
+    //cout << "Loop starts at: " << ros::Time::now().toSec() << endl;
     int id = 0;
     while(ros::Time::now() < start + del) {
         
@@ -260,14 +266,14 @@ void Explore::publish_markers() {
         
     }
 
-    cout << "Loop ends at: " << ros::Time::now().toSec() << endl;
+    //cout << "Loop ends at: " << ros::Time::now().toSec() << endl;
    
 
 }
 
 void Explore::publish_markers_array(vector<pair<size_t, size_t> > &frontiers_) {
 
-    cout << "INSIDE THE PUBLISH_MARKERS FUNCTION! " << endl;
+    //cout << "INSIDE THE PUBLISH_MARKERS FUNCTION! " << endl;
 
 
     int sz = (int)frontiers_.size();
@@ -284,7 +290,7 @@ void Explore::publish_markers_array(vector<pair<size_t, size_t> > &frontiers_) {
         marker.header.stamp = ros::Time();
 
         marker.ns = nh_.getNamespace();
-        cout << "namespace: " <<marker.ns<< endl;
+        //cout << "namespace: " <<marker.ns<< endl;
 
         marker.id = i;
         marker.type = visualization_msgs::Marker::SPHERE;
@@ -303,7 +309,7 @@ void Explore::publish_markers_array(vector<pair<size_t, size_t> > &frontiers_) {
         marker.pose.orientation.z = 0.0;
         marker.pose.orientation.w = 1.0;
 
-        marker.lifetime = ros::Duration(5.0);
+        marker.lifetime = ros::Duration();
 
         marker.scale.x = 1.0;
         marker.scale.y = 1.0;
@@ -318,22 +324,22 @@ void Explore::publish_markers_array(vector<pair<size_t, size_t> > &frontiers_) {
 
         frontier_marker_array.markers.push_back(marker);
 
-        cout << "frontier_marker_array.markers.size(): " << frontier_marker_array.markers.size() << endl; 
+        //cout << "frontier_marker_array.markers.size(): " << frontier_marker_array.markers.size() << endl; 
 
     }
 
     ros::Time start = ros::Time::now(); 
-    ros::Duration del(30.0);
+    ros::Duration del(15.0);
     ros::Time end = start + del ;
 
-    cout << "Loop starts at: " << ros::Time::now().toSec() << endl;
+    //cout << "Loop starts at: " << ros::Time::now().toSec() << endl;
 
     while(ros::Time::now() < start + del) {
 
         frontier_array_pub.publish(frontier_marker_array);
     }
 
-    cout << "Loop ends at: " << ros::Time::now().toSec() << endl;
+    //cout << "Loop ends at: " << ros::Time::now().toSec() << endl;
 
 
 }
@@ -475,166 +481,399 @@ bool Explore::has_free_cell_neighbour(int mx, int my) {
 
 }
 
-//vector<vector<pair<size_t, size_t> > > Explore::explore_level_four() {
 
-void Explore::explore_level_four() {
+vector<pair<size_t, size_t> >  Explore::get_target_frontier(){
 
+    int flag= 0 ; 
+
+    for(int i = 0;  i < frontier_collection.size(); i++) {
+
+            if(frontier_collection[i].size() > 50) {
+
+                cout << "Frontier with greater than 50 points found!" << endl;
+                
+                vector<pair<size_t, size_t> > &v = frontier_collection[i]; 
+
+                cout << "v.size(): " << v.size() << endl;
+
+                sort(v.begin(), v.end());
+
+                return v;
+            
+            }
+    }
+
+    if(!flag) {
+
+        cout << "No suitable target frontier was found ---- returning an empty vector" << endl;
+
+        return vector<pair<size_t,size_t> >();
+    
+    }
+
+}
+
+geometry_msgs::Pose Explore::get_currrent_pose_map() {
+
+    geometry_msgs::PoseStamped current_pose;
+
+    __uint32_t mx, my; 
+    double wx, wy; 
+
+    //global_costmap->getRobotPose(current_pose); 
+
+    global_costmap->getRobotPose(current_pose);
+    
+    global_costmap_->worldToMap(wx, wy, mx, my);
+
+    geometry_msgs::Pose transformed_pose;
+    transformed_pose.position.x = mx; 
+    transformed_pose.position.y = my;
+    
+    return transformed_pose;
+
+}
+
+void Explore::go_to_frontier_median() {
+
+
+    cout << "Inside the go_to_frontier_median funtion!" << endl << endl;
+    cout << "frontier_collection.size(): " << frontier_collection.size() << endl;
+
+    int  mx_index = -1, mx_val =-1; 
+
+    for(int i = 0; i < frontier_collection.size(); i++) {
+        
+        //cout << "mx_val: " << mx_val << " frontier_collection[i].size(): " << frontier_collection[i].size() << endl;
+
+        if((int)frontier_collection[i].size() > mx_val) {
+            
+            cout << "Updating mx_index and mx_val" << endl;
+            mx_val = frontier_collection[i].size(); 
+            mx_index = i;
+
+            cout << "Updated mx_val: " << mx_val << " mx_index: " << mx_index << endl;
+
+        }
+
+    }
+    
+    cout << "mx_index: " << mx_index << " mx_val: " << mx_val << endl;
+
+    if(mx_index == -1) {
+
+        cout << "ALERT: mx_index is -1" << endl;
+        ros::Duration(3.0).sleep();
+        return;
+    
+    }
+
+    vector<pair<size_t, size_t> > &v = frontier_collection[mx_index];
+
+    __uint32_t median_pos = v.size()/2; 
+
+    __uint32_t median_x = v[median_pos].first , median_y = v[median_pos].second;
+
+
+    cout << "Trying to publish the markers for the frontier - V" << endl; 
+    ros::Duration(2.0).sleep();
+
+    publish_markers_array(v);
+
+    geometry_msgs::Pose current_pose = get_currrent_pose_map();
+    
+    cout << "current_pose.x: " << current_pose.position.x << " current_pose.y: " << current_pose.position.y << endl;
+
+    cout << "median_x: " << median_x << " median_y: " << median_y << endl;
+    
+    cout << "Going to the frontier median pos!" << endl;
+
+    go_to_cell(median_x, median_y);
+
+
+}
+
+void Explore::explore_level_five() {
+    
     cout << "size_x: " << size_x << " size_y: " << size_y << endl;
 
+    
     memset(map_open_list, -1, sizeof(map_open_list));
     memset(map_close_list, -1, sizeof(map_close_list));
 
     memset(frontier_open_list, -1, sizeof(frontier_open_list));
     memset(frontier_close_list, -1, sizeof(frontier_close_list));
    
-        
-    cout << "Starting the ros::ok() loop -- sleeping for 1 second" << endl;
-    
-    ros::Duration(1.0).sleep();
-
-    cout << "Locking the costmap!" << endl;
-
-    
-    queue<pair<size_t, size_t> > q_m;
-
-    geometry_msgs::PoseStamped global_pose;
-
-    bool getRobotPose_flag = global_costmap->getRobotPose(global_pose);
-
-    if(getRobotPose_flag) { cout << "global_pose updated successfully!" << endl; }
-
-    else { cout << "Error - Unable to update global_pose for the bot.";}
-
-    double wx = global_pose.pose.position.x, wy = global_pose.pose.position.y;
-
-    unsigned int mx, my; 
-
-    bool worldToMap_flag =  global_costmap_->worldToMap(wx, wy, mx, my);
-
-    if(worldToMap_flag) {cout << "Successfully transformed from world frame to map frame!" << endl;}
-    
-    else {cout << "Could not transform from world frame to map frame!" << endl;}
-
-    map_open_list[mx][my] = 1;
-    
-    q_m.push({mx, my});
+    while(ros::ok){
 
 
-    while(!q_m.empty()) {
+        cout << "Starting the ros::ok() loop -- sleeping for 1 second" << endl;
+        ros::Duration(1.0).sleep();
 
-        cout << "Inside the q_m queue!" << endl;
-        cout << "Sleeping for 1 seconds" << endl;
-
-        //ros::Duration(1.0).sleep();
-
-        cout << "Locking the global costmap!" << endl;
+        cout << "Clearing frontier_collection vector!" << endl; 
+        frontier_collection.clear();
+        cout << "new_size of frontier_collection: " << frontier_collection.size() << endl;
 
         unique_lock<costmap_2d::Costmap2D::mutex_t> lock(*(global_costmap_->getMutex()));
-
-        pair<unsigned int, unsigned int>  front = q_m.front();
-
-        unsigned int cx = front.first , cy = front.second ; 
-
-        cout << "cx: " << cx  << " cy: " << cy << " q_m.size(): " << q_m.size() << endl;
         
-        q_m.pop();
+        cout << "Locking the costmap!" << endl;
 
+        queue<pair<size_t, size_t> > q_m;
 
+        geometry_msgs::PoseStamped global_pose;
 
-        if(map_close_list[cx][cy] != -1) {continue;}
+        bool getRobotPose_flag = global_costmap->getRobotPose(global_pose);
 
-        if(is_frontier(cx, cy)) {
+        if(getRobotPose_flag) { cout << "global_pose updated successfully!" << endl; }
 
-            cout << "Frontier point detected!" << endl;
+        else { cout << "Error - Unable to update global_pose for the bot.";}
 
-            queue<pair<size_t, size_t> >q_f;
+        double wx = global_pose.pose.position.x, wy = global_pose.pose.position.y;
 
-            vector<pair<size_t, size_t> > curr_frontier;
+        unsigned int mx, my; 
 
-            curr_frontier.push_back({cx, cy});
+        bool worldToMap_flag =  global_costmap_->worldToMap(wx, wy, mx, my);
 
-            frontier_open_list[cx][cy] = 1;
+        //if(worldToMap_flag) {cout << "Successfully transformed from world frame to map frame!" << endl;}
+        
+        //else {cout << "Could not transform from world frame to map frame!" << endl;}
 
-            q_f.push({cx, cy});
+        if(!worldToMap_flag) {
 
-            while(!q_f.empty()) {
+            cout << "ALERT- Could not transform from world frame to map frame!" << endl; 
+            ros::Duration(5.0).sleep();
+
+        }
+
+        map_open_list[mx][my] = 1;
+        
+        q_m.push({mx, my});
+
+        while(!q_m.empty()) {
+
+            pair<unsigned int, unsigned int>  front = q_m.front();
+
+            unsigned int cx = front.first , cy = front.second ; 
+
+            cout << "cx: " << cx  << " cy: " << cy << " q_m.size(): " << q_m.size() << endl;
+            
+            q_m.pop();
+
+            if(map_close_list[cx][cy] != -1) {continue;}
+
+            for(int i = (int)cx- 5 ; i < cx + 5; i++) {
                 
-                pair<unsigned int, unsigned int> front_ = q_f.front();
-
-                unsigned int cx_ = front_.first, cy_ = front_.second;
-
-                cout << "cx_: " << cx_ << " cy_: " << cy_ <<  " sz: " << q_f.size() << endl;
-
-                q_f.pop();
-
-                if(frontier_close_list[cx_][cy_] != -1 || map_close_list[cx_][cy_] != -1) {continue;}
-
-                if(is_frontier(cx_, cy_)) {
+                for(int j = (int)cy -5 ; j < cy + 5 ; j++) {
                     
-                    cout << "Frontier found inside q_f!" << endl;
+                    if(i < 0 || j < 0 || i >= size_x || j >= size_y || (i == cx && j == cy)) {continue;}
 
-                    curr_frontier.push_back({cx_, cy_});
-                    
-                    for(int i = cx_ - 1; i <= cx_ + 1; i++) {
+                    if(map_open_list[i][j] == -1 && map_close_list[i][j] == -1 && has_free_cell_neighbour(i, j)) {
                         
-                        for(int j = cy_ - 1; j <= cy_ + 1; j++) {
-                            
-                            if(i < 0 || j < 0 || i >= size_x || j >= size_y || (i == cx_ && j == cy_)) {continue;}
-
-                            if(frontier_open_list[i][j] != -1 || frontier_close_list[i][j] != -1 || map_close_list[i][j] != -1 ) {continue;}
-
-                            q_f.push({i,j});
-                            frontier_open_list[i][j] =1;
-
-                        }
+                        q_m.push({i,j}); 
+                        map_open_list[i][j] = 1;
 
                     }
 
-                    
-                }
-
-                frontier_close_list[cx_][cy_] = 1;
-
-            }
-
-            cout << "curr_frontier.size(): " << curr_frontier.size() << " frontier_collection.size(): " << frontier_collection.size() << endl << endl;
-            frontier_collection.push_back(curr_frontier);
-            cout << "curr_frontier.size(): " << curr_frontier.size() << " frontier_collection.size(): " << frontier_collection.size() << endl << endl;
-            
-
-        }
-
-        int elems_added = 0 ;
-
-        for(int i = (int)cx- 5 ; i < cx + 5; i++) {
-            
-            for(int j = (int)cy -5 ; j < cy + 5 ; j++) {
-                
-                if(i < 0 || j < 0 || i >= size_x || j >= size_y || (i == cx && j == cy)) {continue;}
-
-                if(map_open_list[i][j] == -1 && map_close_list[i][j] == -1 && has_free_cell_neighbour(i, j)) {
-                    
-                    elems_added++;
-                    q_m.push({i,j}); 
-                    map_open_list[i][j] = 1;
-
                 }
 
             }
 
+            map_close_list[cx][cy] = 1;
+            
         }
 
-        cout << "elems_added: " << elems_added << endl;
-        cout << "Finished the for loop! " << "q_m.size(): " << q_m.size()  << endl;
+        cout << "frontier_collection.size(): " << frontier_collection.size() << endl;
+        
+        cout << "END OF ROS::OK while loop! --- sleeping for 2 seconds!" << endl;
+        
+        ros::Duration(2.0).sleep(); 
+        lock.unlock(); 
 
-        cout << "Reached end of the q_m while loop" << endl;
-        cout << "cx: " << cx << " cy: " << cy  << endl;
+        cout << "Moving to the frontier medium!"  << endl;
 
-        map_close_list[cx][cy] = 1;
+        go_to_frontier_median();
 
-        lock.unlock();
+        
         ros::spinOnce();
+    
+    }
 
+}
+
+
+void Explore::explore_level_four() {
+    
+    cout << "size_x: " << size_x << " size_y: " << size_y << endl;
+
+    
+    
+    while(ros::ok){
+
+        memset(map_open_list, -1, sizeof(map_open_list));
+        memset(map_close_list, -1, sizeof(map_close_list));
+
+        memset(frontier_open_list, -1, sizeof(frontier_open_list));
+        memset(frontier_close_list, -1, sizeof(frontier_close_list));
+   
+        cout << "Starting the ros::ok() loop -- sleeping for 1 second" << endl;
+        ros::Duration(1.0).sleep();
+
+        cout << "Clearing frontier_collection vector!" << endl; 
+        frontier_collection.clear();
+        cout << "new_size of frontier_collection: " << frontier_collection.size() << endl;
+
+        unique_lock<costmap_2d::Costmap2D::mutex_t> lock(*(global_costmap_->getMutex()));
+        
+        cout << "Locking the costmap!" << endl;
+
+        queue<pair<size_t, size_t> > q_m;
+
+        geometry_msgs::PoseStamped global_pose;
+
+        bool getRobotPose_flag = global_costmap->getRobotPose(global_pose);
+
+        if(getRobotPose_flag) { cout << "global_pose updated successfully!" << endl; }
+
+        else { cout << "Error - Unable to update global_pose for the bot.";}
+
+        double wx = global_pose.pose.position.x, wy = global_pose.pose.position.y;
+
+        unsigned int mx, my; 
+
+        bool worldToMap_flag =  global_costmap_->worldToMap(wx, wy, mx, my);
+
+        //if(worldToMap_flag) {cout << "Successfully transformed from world frame to map frame!" << endl;}
+        
+        //else {cout << "Could not transform from world frame to map frame!" << endl;}
+
+        if(!worldToMap_flag) {
+
+            cout << "ALERT- Could not transform from world frame to map frame!" << endl; 
+            ros::Duration(5.0).sleep();
+
+        }
+
+        
+        map_open_list[mx][my] = 1;
+        
+                
+        q_m.push({mx, my});
+
+        while(!q_m.empty()) {
+
+            pair<unsigned int, unsigned int>  front = q_m.front();
+
+            unsigned int cx = front.first , cy = front.second ; 
+
+            cout << "cx: " << cx  << " cy: " << cy << " q_m.size(): " << q_m.size() << endl;
+            
+            q_m.pop();
+
+            if(map_close_list[cx][cy] != -1) {continue;}
+
+            if(is_frontier(cx, cy)) {
+
+                cout << "Frontier point detected!" << endl;
+
+                queue<pair<size_t, size_t> >q_f;
+
+                vector<pair<size_t, size_t> > curr_frontier;
+
+                //curr_frontier.push_back({cx, cy});
+
+                q_f.push({cx, cy});
+
+                frontier_open_list[cx][cy] = 1;
+
+                
+                 while(!q_f.empty()) {
+                    
+                    pair<unsigned int, unsigned int> front_ = q_f.front();
+
+                    unsigned int cx_ = front_.first, cy_ = front_.second;
+
+                    cout << "cx_: " << cx_ << " cy_: " << cy_ <<  " sz: " << q_f.size() << endl;
+
+                    q_f.pop();
+
+                    if(frontier_close_list[cx_][cy_] != -1 || map_close_list[cx_][cy_] != -1) {continue;}
+
+                    if(is_frontier(cx_, cy_)) {
+                        
+                        cout << "Frontier found inside q_f!" << endl;
+
+                        curr_frontier.push_back({cx_, cy_});
+                        
+                        for(int i = cx_ - 1; i <= cx_ + 1; i++) {
+                            
+                            for(int j = cy_ - 1; j <= cy_ + 1; j++) {
+                                
+                                if(i < 0 || j < 0 || i >= size_x || j >= size_y || (i == cx_ && j == cy_)) {continue;}
+
+                                if(frontier_open_list[i][j] != -1 || frontier_close_list[i][j] != -1 || map_close_list[i][j] != -1 ) {continue;}
+
+                                q_f.push({i,j});
+                                frontier_open_list[i][j] =1;
+
+                            }
+
+                        }
+                
+                    }
+
+                    frontier_close_list[cx_][cy_] = 1;
+
+                }
+
+                frontier_collection.push_back(curr_frontier);
+                
+            }
+
+            int elems_added = 0 ;
+
+            for(int i = (int)cx- 5 ; i < cx + 5; i++) {
+                
+                for(int j = (int)cy -5 ; j < cy + 5 ; j++) {
+                    
+                    if(i < 0 || j < 0 || i >= size_x || j >= size_y || (i == cx && j == cy)) {continue;}
+
+                    if(map_open_list[i][j] == -1 && map_close_list[i][j] == -1 && has_free_cell_neighbour(i, j)) {
+                        
+                        elems_added++;
+                        q_m.push({i,j}); 
+                        map_open_list[i][j] = 1;
+
+                    }
+
+                }
+
+            }
+    
+        
+            cout << "elems_added: " << elems_added << endl;
+            cout << "Finished the for loop! " << "q_m.size(): " << q_m.size()  << endl;
+
+            cout << "Reached end of the q_m while loop" << endl;
+            cout << "cx: " << cx << " cy: " << cy  << endl;
+
+            map_close_list[cx][cy] = 1;
+            
+        }
+
+        cout << "frontier_collection.size(): " << frontier_collection.size() << endl;
+        
+        cout << "END OF ROS::OK while loop! --- sleeping for 2 seconds!" << endl;
+        
+        ros::Duration(2.0).sleep(); 
+        lock.unlock(); 
+
+        cout << "Moving to the frontier medium!"  << endl;
+
+        go_to_frontier_median();
+
+        
+        ros::spinOnce();
+    
     }
 
 }
@@ -653,38 +892,16 @@ int main(int argc, char** argv) {
     
     Explore* explore_one = new Explore(nh, buffer);
 
+    //Explore explore = Explore(nh, buffer);
+
+
     explore_one->explore_level_four();
 
     
-    cout << "frontier_collection.size(): " << explore_one->frontier_collection.size() << endl;
+    //cout << "frontier_collection.size(): " << explore_one->frontier_collection.size() << endl;
 
-    int cnt = 0 ; 
-    for(int i = 0;  i < explore_one->frontier_collection.size(); i++) {
 
-            if(explore_one->frontier_collection[i].size() > 50) {
 
-                cout << "Frontier with greater than 50 points found!" << endl;
-                
-                vector<pair<size_t, size_t> > &v = explore_one->frontier_collection[i]; 
-
-                cout << "v.size(): " << v.size() << endl;
-
-                sort(v.begin(), v.end());
-
-                __uint16_t median_pos  = v.size()/2; 
-
-                cout << "median_x: " << v[median_pos].first << " median_y: " << v[median_pos].second << endl;
-
-                explore_one->publish_markers_array(v);
-
-                break;
-            }
-
-    }
-
-    cout << "cnt: " << cnt << endl;
-
-    
    
     return 0;
 }   
