@@ -35,9 +35,7 @@ class Explore{
 
         ros::Publisher frontier_array_pub, frontier_pub, marker_pub; 
 
-
     private: 
-
         
         // Member functions
         bool is_frontier(size_t mx, size_t my);
@@ -48,16 +46,11 @@ class Explore{
         void publish_markers_array(vector<pair<size_t, size_t> > &frontiers_);
         void publish_point(__uint32_t median_x, __uint32_t median_y);
         
-
-
-        //vector<pair<size_t, size_t> > get_target_frontier();
-        
         costmap_2d::Costmap2DROS* global_costmap, *local_costmap;
         costmap_2d::Costmap2D* global_costmap_, *local_costmap_;
         
         ros::NodeHandle nh_;
       
-
         vector<pair<size_t, size_t> >frontiers;
         
         string global_frame, robot_base_frame;
@@ -66,7 +59,6 @@ class Explore{
         size_t size_x, size_y;  
         double init_wx, init_wy; 
 
-        
         int vis[4000][4000], frontier_vis[4000][4000] ; 
 
         int map_open_list[4000][4000], map_close_list[4000][4000];
@@ -203,12 +195,13 @@ void Explore::publish_markers_array(vector<pair<size_t, size_t> > &frontiers_) {
 
 
     int sz = (int)frontiers_.size();
-
+    int cnt = 0 ;
+        
     cout << "Size of the frontier array: " << sz << endl;
 
     visualization_msgs::MarkerArray frontier_marker_array;
 
-    for(int i =0 ;i  <min(sz,50) ; i++){
+    for(int i =0 ;i  <sz ; i++){
 
         visualization_msgs::Marker marker;
 
@@ -218,13 +211,16 @@ void Explore::publish_markers_array(vector<pair<size_t, size_t> > &frontiers_) {
         marker.ns = nh_.getNamespace();
         //cout << "namespace: " <<marker.ns<< endl;
 
-        marker.id = i;
+        marker.id = i + 50;
         marker.type = visualization_msgs::Marker::SPHERE;
         marker.action = visualization_msgs::Marker::ADD;
 
         size_t mx = frontiers_[i].first, my = frontiers_[i].second;
 
-        double wx, wy; 
+        
+        
+        double wx, wy, median_wx, median_wy; 
+        
         global_costmap_->mapToWorld(mx, my, wx, wy);
 
         marker.pose.position.x =  wx;
@@ -253,6 +249,9 @@ void Explore::publish_markers_array(vector<pair<size_t, size_t> > &frontiers_) {
         //cout << "frontier_marker_array.markers.size(): " << frontier_marker_array.markers.size() << endl; 
 
     }
+
+    cout << "cnt:  " << cnt << " sz " << sz <<  endl;
+
 
     ros::Time start = ros::Time::now(); 
     ros::Duration del(15.0);
@@ -292,40 +291,6 @@ bool Explore::has_free_cell_neighbour(int mx, int my) {
     return false;
 
 }
-
-/*
-vector<pair<size_t, size_t> >  Explore::get_target_frontier(){
-
-    int flag= 0 ; 
-
-    for(int i = 0;  i < frontier_collection.size(); i++) {
-
-            if(frontier_collection[i].size() > 50) {
-
-                cout << "Frontier with greater than 50 points found!" << endl;
-                
-                vector<pair<size_t, size_t> > &v = frontier_collection[i]; 
-
-                cout << "v.size(): " << v.size() << endl;
-
-                sort(v.begin(), v.end());
-
-                return v;
-            
-            }
-    }
-
-    if(!flag) {
-
-        cout << "No suitable target frontier was found ---- returning an empty vector" << endl;
-
-        return vector<pair<size_t,size_t> >();
-    
-    }
-
-}
-
-*/
 
 geometry_msgs::Pose Explore::get_currrent_pose_map() {
 
@@ -389,17 +354,6 @@ void Explore::go_to_frontier_median() {
     __uint32_t median_x = v[median_pos].first , median_y = v[median_pos].second;
 
 
-    cout << "Trying to publish the markers for the frontier - V" << endl; 
-    ros::Duration(2.0).sleep();
-
-    
-    
-
-    publish_markers_array(v);
-
-    ros::Duration(2.0).sleep();
-
-    
     geometry_msgs::Pose current_pose = get_currrent_pose_map();
     
     cout << "current_pose.x: " << current_pose.position.x << " current_pose.y: " << current_pose.position.y << endl;
@@ -409,8 +363,16 @@ void Explore::go_to_frontier_median() {
     cout << "Publishing the median marker" << endl; 
     cout << "Sleeping for 2 seconds!" << endl;
     
+    ros::Duration(2.0).sleep();
+
     publish_point(median_x, median_y);
 
+    cout << "Trying to publish the markers for the frontier - V" << endl; 
+    
+    publish_markers_array(v);
+
+    ros::Duration(2.0).sleep();
+    
     cout << "Going to the frontier median pos!" << endl;
 
     go_to_cell(median_x, median_y);
@@ -438,8 +400,8 @@ void Explore::publish_point(__uint32_t mx , __uint32_t my) {
         marker.header.frame_id = "map";
         marker.header.stamp = ros::Time::now();
 
-        marker.ns = nh_.getNamespace();
-        marker.id = 0;
+        marker.ns = nh_.getNamespace() + "_point";
+        marker.id = 10;
 
         // Set the marker type.  Initially this is CUBE, and cycles between that and SPHERE, ARROW, and CYLINDER
         marker.type = shape;
@@ -449,8 +411,8 @@ void Explore::publish_point(__uint32_t mx , __uint32_t my) {
 
         marker.pose.position.x = (float)wx;
         marker.pose.position.y = (float)wy;
+        marker.pose.position.z = 2;
         
-        marker.pose.position.z = 0;
         marker.pose.orientation.x = 0.0;
         marker.pose.orientation.y = 0.0;
         marker.pose.orientation.z = 0.0;
@@ -583,7 +545,6 @@ void Explore::explore_level_four() {
                 q_f.push({cx, cy});
 
                 frontier_open_list[cx][cy] = 1;
-
                 
                  while(!q_f.empty()) {
                     
