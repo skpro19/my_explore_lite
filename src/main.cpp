@@ -30,8 +30,6 @@ class Explore{
 
         Explore(ros::NodeHandle &nh, tf2_ros::Buffer &buffer);
         void explore_level_four();
-        void publish_markers_array(vector<pair<size_t, size_t> > &frontiers_);
-        void publish_point(__uint32_t median_x, __uint32_t median_y);
         
         vector<vector<pair<size_t, size_t> > > frontier_collection;
 
@@ -41,13 +39,18 @@ class Explore{
     private: 
 
         
+        // Member functions
         bool is_frontier(size_t mx, size_t my);
         void go_to_cell(size_t mx, size_t my);
         bool has_free_cell_neighbour(int a, int b);
         geometry_msgs::Pose get_currrent_pose_map();    
         void go_to_frontier_median();
+        void publish_markers_array(vector<pair<size_t, size_t> > &frontiers_);
+        void publish_point(__uint32_t median_x, __uint32_t median_y);
+        
 
-        vector<pair<size_t, size_t> > get_target_frontier();
+
+        //vector<pair<size_t, size_t> > get_target_frontier();
         
         costmap_2d::Costmap2DROS* global_costmap, *local_costmap;
         costmap_2d::Costmap2D* global_costmap_, *local_costmap_;
@@ -290,6 +293,7 @@ bool Explore::has_free_cell_neighbour(int mx, int my) {
 
 }
 
+/*
 vector<pair<size_t, size_t> >  Explore::get_target_frontier(){
 
     int flag= 0 ; 
@@ -320,6 +324,8 @@ vector<pair<size_t, size_t> >  Explore::get_target_frontier(){
     }
 
 }
+
+*/
 
 geometry_msgs::Pose Explore::get_currrent_pose_map() {
 
