@@ -31,16 +31,18 @@ class Explore{
         Explore(ros::NodeHandle &nh, tf2_ros::Buffer &buffer);
         void explore_level_four();
         void publish_markers_array(vector<pair<size_t, size_t> > &frontiers_);
-        void publish_point_(__uint32_t a, __uint32_t b);
+        void publish_point(__uint32_t median_x, __uint32_t median_y);
         
         vector<vector<pair<size_t, size_t> > > frontier_collection;
+
+        ros::Publisher frontier_array_pub, frontier_pub, marker_pub; 
+
 
     private: 
 
         
         bool is_frontier(size_t mx, size_t my);
         void go_to_cell(size_t mx, size_t my);
-        void publish_point(__uint32_t x, __uint32_t y);
         bool has_free_cell_neighbour(int a, int b);
         geometry_msgs::Pose get_currrent_pose_map();    
         void go_to_frontier_median();
@@ -51,8 +53,7 @@ class Explore{
         costmap_2d::Costmap2D* global_costmap_, *local_costmap_;
         
         ros::NodeHandle nh_;
-        ros::Publisher frontier_array_pub, frontier_pub, marker_pub; 
-
+      
 
         vector<pair<size_t, size_t> >frontiers;
         
@@ -190,141 +191,6 @@ void Explore::go_to_cell(size_t mx, size_t my) {
     else {
         ROS_INFO("Failed to move to the goal");
     }
-
-}
-
-void Explore::publish_point_(__uint32_t a, __uint32_t b) {
-
-  cout << "Inside the publish_point_ function!" << endl;
-
-  cout << "a: " << a << " b: " << b << endl;
-  // Set our initial shape type to be a cube
-    uint32_t shape = visualization_msgs::Marker::CUBE;
-
-    ros::Rate r(1.0);
-
-
-  while (ros::ok())
-  {
-    visualization_msgs::Marker marker;
-    // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-    marker.header.frame_id = "map";
-    marker.header.stamp = ros::Time::now();
-
-    // Set the namespace and id for this marker.  This serves to create a unique ID
-    // Any marker sent with the same namespace and id will overwrite the old one
-    marker.ns = "basic_shapes";
-    marker.id = 0;
-
-    // Set the marker type.  Initially this is CUBE, and cycles between that and SPHERE, ARROW, and CYLINDER
-    marker.type = shape;
-
-    // Set the marker action.  Options are ADD, DELETE, and new in ROS Indigo: 3 (DELETEALL)
-    marker.action = visualization_msgs::Marker::ADD;
-
-    // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-    marker.pose.position.x = a;
-    marker.pose.position.y = b;
-    marker.pose.position.z = 0;
-    marker.pose.orientation.x = 0.0;
-    marker.pose.orientation.y = 0.0;
-    marker.pose.orientation.z = 0.0;
-    marker.pose.orientation.w = 1.0;
-
-    // Set the scale of the marker -- 1x1x1 here means 1m on a side
-    marker.scale.x = 1.0;
-    marker.scale.y = 1.0;
-    marker.scale.z = 1.0;
-
-    // Set the color -- be sure to set alpha to something non-zero!
-    marker.color.r = 0.0f;
-    marker.color.g = 1.0f;
-    marker.color.b = 0.0f;
-    marker.color.a = 1.0;
-
-    marker.lifetime = ros::Duration();
-
-    // Publish the marker
-    while (marker_pub.getNumSubscribers() < 1)
-    {
-     
-      ROS_WARN_ONCE("Please create a subscriber to the marker");
-      r.sleep();
-    
-    }
-    
-    marker_pub.publish(marker);
-
-  }
-    
-
-}
-
-void Explore::publish_point(__uint32_t x_, __uint32_t y_) {
-
-    cout << "INSIDE THE PUBLISH_MARKERS FUNCTION! " << endl;
-
-    visualization_msgs::Marker marker;
-
-    marker.header.frame_id = "map";
-    marker.header.stamp = ros::Time();
-
-   
-    marker.ns = nh_.getNamespace();
-    //cout << "namespace: " << marker.ns << endl;
-
-    marker.id = 23;
-    marker.type = visualization_msgs::Marker::SPHERE;
-    marker.action = visualization_msgs::Marker::ADD;
-
- 
-    marker.pose.position.x = x_;
-    marker.pose.position.y = y_;
-    marker.pose.position.z = 1; 
-
-
-    marker.pose.orientation.x = 0.0;
-    marker.pose.orientation.y = 0.0;
-    marker.pose.orientation.z = 0.0;
-    marker.pose.orientation.w = 1.0;
-
-    marker.lifetime = ros::Duration();
-
-    marker.scale.x = 2;
-    marker.scale.y = 2;
-    marker.scale.z = 1.0;
-    
-    marker.color.a = 1.0; // Don't forget to set the alpha!
-    
-    marker.color.r = 0.0;
-    marker.color.g = 1.0;
-    marker.color.b = 1.0;
-    
-    //only if using a MESH_RESOURCE marker type:
-    //marker.mesh_resource = "package://pr2_description/meshes/base_v0/base.dae";
-
-    ros::Time start = ros::Time::now(); 
-    ros::Duration del(20.0);
-    ros::Time end = start + del ;
-
-    //cout << "Loop starts at: " << ros::Time::now().toSec() << endl;
-    int id = 0;
-    
-    frontier_pub = nh_.advertise<visualization_msgs::Marker>( "visualization_marker", 10 );
-      
-
-    while(ros::Time::now() < start + del) {
-        
-        
-        frontier_pub.publish(marker);
-        //ros::Duration(0.5).sleep();
-        //cout << "Current time: " << ros::Time::now().toSec() << endl;
-        
-        
-    }
-
-    //cout << "Loop ends at: " << ros::Time::now().toSec() << endl;
-   
 
 }
 
@@ -523,9 +389,8 @@ void Explore::go_to_frontier_median() {
     
     
 
-    //publish_markers_array(v);
+    publish_markers_array(v);
 
-    
     ros::Duration(2.0).sleep();
 
     
@@ -538,11 +403,95 @@ void Explore::go_to_frontier_median() {
     cout << "Publishing the median marker" << endl; 
     cout << "Sleeping for 2 seconds!" << endl;
     
-    publish_point_(median_x, median_y);
+    publish_point(median_x, median_y);
 
     cout << "Going to the frontier median pos!" << endl;
 
     go_to_cell(median_x, median_y);
+
+}
+
+void Explore::publish_point(__uint32_t mx , __uint32_t my) {
+
+    ros::Rate r(1);
+    
+    // Set our initial shape type to be a cube
+    uint32_t shape = visualization_msgs::Marker::CUBE;
+
+    ros::Time current_time = ros::Time().now(); 
+
+    ros::Time final = current_time + ros::Duration(15.0); 
+
+    double wx, wy; 
+    global_costmap_->mapToWorld(mx, my, wx, wy);
+
+    while (ros::Time().now() < final)
+//    while(ros::ok())
+    {
+        visualization_msgs::Marker marker;
+        marker.header.frame_id = "map";
+        marker.header.stamp = ros::Time::now();
+
+        marker.ns = nh_.getNamespace();
+        marker.id = 0;
+
+        // Set the marker type.  Initially this is CUBE, and cycles between that and SPHERE, ARROW, and CYLINDER
+        marker.type = shape;
+
+        // Set the marker action.  Options are ADD, DELETE, and new in ROS Indigo: 3 (DELETEALL)
+        marker.action = visualization_msgs::Marker::ADD;
+
+        marker.pose.position.x = (float)wx;
+        marker.pose.position.y = (float)wy;
+        
+        marker.pose.position.z = 0;
+        marker.pose.orientation.x = 0.0;
+        marker.pose.orientation.y = 0.0;
+        marker.pose.orientation.z = 0.0;
+        marker.pose.orientation.w = 1.0;
+
+        // Set the scale of the marker -- 1x1x1 here means 1m on a side
+        marker.scale.x = 1.0;
+        marker.scale.y = 1.0;
+        marker.scale.z = 1.0;
+
+        // Set the color -- be sure to set alpha to something non-zero!
+        marker.color.r = 0.0;
+        marker.color.g = 1.0;
+        marker.color.b = 0.0;
+
+        marker.color.a = 1.0;
+
+        marker.lifetime = ros::Duration();
+
+        // Publish the marker
+        while (marker_pub.getNumSubscribers() < 1)
+        {
+        ROS_WARN_ONCE("Please create a subscriber to the marker");
+        sleep(1);
+        }
+
+        marker_pub.publish(marker);
+
+        switch (shape)
+        {
+        case visualization_msgs::Marker::CUBE:
+        shape = visualization_msgs::Marker::SPHERE;
+        break;
+        case visualization_msgs::Marker::SPHERE:
+        shape = visualization_msgs::Marker::ARROW;
+        break;
+        case visualization_msgs::Marker::ARROW:
+        shape = visualization_msgs::Marker::CYLINDER;
+        break;
+        case visualization_msgs::Marker::CYLINDER:
+        shape = visualization_msgs::Marker::CUBE;
+        break;
+        }
+
+        r.sleep();
+    }
+
 
 
 }
@@ -551,8 +500,6 @@ void Explore::explore_level_four() {
     
     cout << "size_x: " << size_x << " size_y: " << size_y << endl;
 
-    
-    
     while(ros::ok){
 
         memset(map_open_list, -1, sizeof(map_open_list));
