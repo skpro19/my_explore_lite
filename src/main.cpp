@@ -19,7 +19,6 @@
 
 #include <move_base_msgs/MoveBaseAction.h>
 
-
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient; 
 
 using namespace std;
@@ -30,11 +29,9 @@ class Explore{
     public:
 
         Explore(ros::NodeHandle &nh, tf2_ros::Buffer &buffer);
-        //vector<vector<pair<size_t, size_t> > > explore_level_four();
         void explore_level_four();
         void publish_markers_array(vector<pair<size_t, size_t> > &frontiers_);
-        
-        void explore_level_five();
+        void publish_point_(__uint32_t a, __uint32_t b);
         
         vector<vector<pair<size_t, size_t> > > frontier_collection;
 
@@ -42,14 +39,11 @@ class Explore{
 
         
         bool is_frontier(size_t mx, size_t my);
-        void explore_level_three();
         void go_to_cell(size_t mx, size_t my);
-        void publish_markers();
+        void publish_point(__uint32_t x, __uint32_t y);
         bool has_free_cell_neighbour(int a, int b);
         geometry_msgs::Pose get_currrent_pose_map();    
         void go_to_frontier_median();
-
-
 
         vector<pair<size_t, size_t> > get_target_frontier();
         
@@ -57,7 +51,7 @@ class Explore{
         costmap_2d::Costmap2D* global_costmap_, *local_costmap_;
         
         ros::NodeHandle nh_;
-        ros::Publisher frontier_array_pub, frontier_pub; 
+        ros::Publisher frontier_array_pub, frontier_pub, marker_pub; 
 
 
         vector<pair<size_t, size_t> >frontiers;
@@ -74,9 +68,6 @@ class Explore{
         int map_open_list[4000][4000], map_close_list[4000][4000];
         int frontier_open_list[4000][4000], frontier_close_list[4000][4000];
         
-       // int map_open_list[500][500], map_close_list[500][500];
-        //int frontier_open_list[500][500], frontier_close_list[500][500];
-
 };
 
 Explore::Explore(ros::NodeHandle &nh, tf2_ros::Buffer &buffer):nh_{nh}{
@@ -115,16 +106,9 @@ Explore::Explore(ros::NodeHandle &nh, tf2_ros::Buffer &buffer):nh_{nh}{
 
     cout << "is_frontier(mx, my): " << (int)is_frontier(mx, my) << endl; 
 
-    //ros::Duration(10.0).sleep();
-
-
-    //frontier_pub = nh_.advertise<visualization_msgs::Marker>( "visualization_markers", 10 );
+    marker_pub = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 1);
         
     frontier_array_pub = nh_.advertise<visualization_msgs::MarkerArray>( "visualization_markers_array", 10 );
-        
-    //explore_level_three();
-
-    //ros::spin();
 
 }
 
@@ -209,7 +193,74 @@ void Explore::go_to_cell(size_t mx, size_t my) {
 
 }
 
-void Explore::publish_markers() {
+void Explore::publish_point_(__uint32_t a, __uint32_t b) {
+
+  cout << "Inside the publish_point_ function!" << endl;
+
+  cout << "a: " << a << " b: " << b << endl;
+  // Set our initial shape type to be a cube
+    uint32_t shape = visualization_msgs::Marker::CUBE;
+
+    ros::Rate r(1.0);
+
+
+  while (ros::ok())
+  {
+    visualization_msgs::Marker marker;
+    // Set the frame ID and timestamp.  See the TF tutorials for information on these.
+    marker.header.frame_id = "map";
+    marker.header.stamp = ros::Time::now();
+
+    // Set the namespace and id for this marker.  This serves to create a unique ID
+    // Any marker sent with the same namespace and id will overwrite the old one
+    marker.ns = "basic_shapes";
+    marker.id = 0;
+
+    // Set the marker type.  Initially this is CUBE, and cycles between that and SPHERE, ARROW, and CYLINDER
+    marker.type = shape;
+
+    // Set the marker action.  Options are ADD, DELETE, and new in ROS Indigo: 3 (DELETEALL)
+    marker.action = visualization_msgs::Marker::ADD;
+
+    // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
+    marker.pose.position.x = a;
+    marker.pose.position.y = b;
+    marker.pose.position.z = 0;
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 1.0;
+
+    // Set the scale of the marker -- 1x1x1 here means 1m on a side
+    marker.scale.x = 1.0;
+    marker.scale.y = 1.0;
+    marker.scale.z = 1.0;
+
+    // Set the color -- be sure to set alpha to something non-zero!
+    marker.color.r = 0.0f;
+    marker.color.g = 1.0f;
+    marker.color.b = 0.0f;
+    marker.color.a = 1.0;
+
+    marker.lifetime = ros::Duration();
+
+    // Publish the marker
+    while (marker_pub.getNumSubscribers() < 1)
+    {
+     
+      ROS_WARN_ONCE("Please create a subscriber to the marker");
+      r.sleep();
+    
+    }
+    
+    marker_pub.publish(marker);
+
+  }
+    
+
+}
+
+void Explore::publish_point(__uint32_t x_, __uint32_t y_) {
 
     cout << "INSIDE THE PUBLISH_MARKERS FUNCTION! " << endl;
 
@@ -222,40 +273,46 @@ void Explore::publish_markers() {
     marker.ns = nh_.getNamespace();
     //cout << "namespace: " << marker.ns << endl;
 
-    marker.id = 1;
+    marker.id = 23;
     marker.type = visualization_msgs::Marker::SPHERE;
     marker.action = visualization_msgs::Marker::ADD;
 
  
-    marker.pose.position.x = init_wx + 1;
-    marker.pose.position.y = init_wy + 3;
+    marker.pose.position.x = x_;
+    marker.pose.position.y = y_;
     marker.pose.position.z = 1; 
+
+
     marker.pose.orientation.x = 0.0;
     marker.pose.orientation.y = 0.0;
     marker.pose.orientation.z = 0.0;
     marker.pose.orientation.w = 1.0;
 
-    marker.lifetime = ros::Duration(100.0);
+    marker.lifetime = ros::Duration();
 
-    marker.scale.x = 1;
-    marker.scale.y = 1;
+    marker.scale.x = 2;
+    marker.scale.y = 2;
     marker.scale.z = 1.0;
     
     marker.color.a = 1.0; // Don't forget to set the alpha!
     
-    marker.color.r = 1.0;
-    marker.color.g = 0.0;
-    marker.color.b = 0.0;
+    marker.color.r = 0.0;
+    marker.color.g = 1.0;
+    marker.color.b = 1.0;
     
     //only if using a MESH_RESOURCE marker type:
     //marker.mesh_resource = "package://pr2_description/meshes/base_v0/base.dae";
 
     ros::Time start = ros::Time::now(); 
-    ros::Duration del(3000.0);
+    ros::Duration del(20.0);
     ros::Time end = start + del ;
 
     //cout << "Loop starts at: " << ros::Time::now().toSec() << endl;
     int id = 0;
+    
+    frontier_pub = nh_.advertise<visualization_msgs::Marker>( "visualization_marker", 10 );
+      
+
     while(ros::Time::now() < start + del) {
         
         
@@ -344,120 +401,6 @@ void Explore::publish_markers_array(vector<pair<size_t, size_t> > &frontiers_) {
 
 }
 
-/*void Explore::explore_level_three() {
-
-    ros::Rate loop_rate(0.1);
-
-    costmap_2d::Costmap2D* global_costmap_ = global_costmap->getCostmap();
-
-    int free_cell_cnt =0 ; 
-
-    memset(vis, -1, sizeof(vis));
-    memset(frontier_vis, -1, sizeof(frontier_vis));
-
-    while(ros::ok()) {
-
-        cout << "------------- RESTARTING INSIDE THE MAIN WHILE LOOP! ------------------------" << endl;
-        cout <<"Sleeping for 5 seconds!" << endl;
-
-        ros::Duration(5.0).sleep();
-
-       unique_lock<costmap_2d::Costmap2D::mutex_t> lock(*(global_costmap_->getMutex()));
-        
-        geometry_msgs::PoseStamped global_pose; 
-
-        bool flag = global_costmap->getRobotPose(global_pose);
-
-        unsigned int mx , my; 
-
-        global_costmap_->worldToMap(global_pose.pose.position.x , global_pose.pose.position.y, mx, my);
-
-        queue<pair<unsigned int, unsigned int> > q; 
-
-        q.push({mx, my});
-
-        cout << "global_pose mx: " << mx << " my: " << my << endl;
-
-        while(!q.empty()) {
-
-            
-            pair<unsigned int, unsigned int> front = q.front(); 
-            
-            int cx =  front.first , cy = front.second; 
-
-            cout << "cx: " << cx << " cy: " << cy << endl;
-
-            vis[cx][cy] = 1;
-
-            q.pop(); 
-
-            for(int i = cx - 10; i <= cx+ 10; i++) {
-
-                for(int j = cy - 10; j <= cy + 10 ; j++) {
-
-                    if(i == cx && j == cy) {continue;}
-
-                    if(i < 0 || i >= size_x || j < 0 || j >= size_y ) {continue;}
-
-                    if(vis[i][j] > 0) {continue;}
-
-                    unsigned char cell_cost = global_costmap_->getCost(i, j);
-
-                    //cout << "(" << i << "," << j << "): " << (int)cell_cost << endl; 
-
-                    if(cell_cost == costmap_2d::FREE_SPACE && (vis[i][j] == -1) ) {
-                        
-                        q.push({i, j});
-                        free_cell_cnt++;
-                        vis[i][j] = 1;
-                    }
-
-                    else if(cell_cost == costmap_2d::NO_INFORMATION && is_frontier(i, j)) {
-                        
-                       if(frontier_vis[i][j] > 0) {continue;}
-
-                        frontiers.push_back({i, j});
-                        frontier_vis[i][j] = 1;
-
-                    }
-                }
-            }    
-        }
-        
-        cout  << "free_cell_cnt: " << free_cell_cnt << endl;
-
-        int sz = (int)frontiers.size(); 
-        cout << "sz: " << sz << endl; 
-        
-        //
-        
-        if(sz > 0) {
-            
-            
-            pair<unsigned int, unsigned int> target = frontiers[sz/2];
-
-            
-            //publish_marker_array();
-            publish_markers_array();
-            cout << "Out of the publish marker array function" << endl;
-            cout << "current location: (" << mx << "," << my << ")" << endl;
-            cout << "Attempting to move to a frontier point - (" << target.first <<"," << target.second << ")" << endl;
-            
-            go_to_cell(target.first, target.second);
-
-        }
-
-        lock.unlock();
-
-        ros::spinOnce();
-        
-        //loop_rate.sleep();
-
-    }
-
-
-}*/
-
 bool Explore::has_free_cell_neighbour(int mx, int my) {
 
     
@@ -480,7 +423,6 @@ bool Explore::has_free_cell_neighbour(int mx, int my) {
     return false;
 
 }
-
 
 vector<pair<size_t, size_t> >  Explore::get_target_frontier(){
 
@@ -578,128 +520,32 @@ void Explore::go_to_frontier_median() {
     cout << "Trying to publish the markers for the frontier - V" << endl; 
     ros::Duration(2.0).sleep();
 
-    publish_markers_array(v);
+    
+    
 
+    //publish_markers_array(v);
+
+    
+    ros::Duration(2.0).sleep();
+
+    
     geometry_msgs::Pose current_pose = get_currrent_pose_map();
     
     cout << "current_pose.x: " << current_pose.position.x << " current_pose.y: " << current_pose.position.y << endl;
 
     cout << "median_x: " << median_x << " median_y: " << median_y << endl;
     
+    cout << "Publishing the median marker" << endl; 
+    cout << "Sleeping for 2 seconds!" << endl;
+    
+    publish_point_(median_x, median_y);
+
     cout << "Going to the frontier median pos!" << endl;
 
     go_to_cell(median_x, median_y);
 
 
 }
-
-void Explore::explore_level_five() {
-    
-    cout << "size_x: " << size_x << " size_y: " << size_y << endl;
-
-    
-    memset(map_open_list, -1, sizeof(map_open_list));
-    memset(map_close_list, -1, sizeof(map_close_list));
-
-    memset(frontier_open_list, -1, sizeof(frontier_open_list));
-    memset(frontier_close_list, -1, sizeof(frontier_close_list));
-   
-    while(ros::ok){
-
-
-        cout << "Starting the ros::ok() loop -- sleeping for 1 second" << endl;
-        ros::Duration(1.0).sleep();
-
-        cout << "Clearing frontier_collection vector!" << endl; 
-        frontier_collection.clear();
-        cout << "new_size of frontier_collection: " << frontier_collection.size() << endl;
-
-        unique_lock<costmap_2d::Costmap2D::mutex_t> lock(*(global_costmap_->getMutex()));
-        
-        cout << "Locking the costmap!" << endl;
-
-        queue<pair<size_t, size_t> > q_m;
-
-        geometry_msgs::PoseStamped global_pose;
-
-        bool getRobotPose_flag = global_costmap->getRobotPose(global_pose);
-
-        if(getRobotPose_flag) { cout << "global_pose updated successfully!" << endl; }
-
-        else { cout << "Error - Unable to update global_pose for the bot.";}
-
-        double wx = global_pose.pose.position.x, wy = global_pose.pose.position.y;
-
-        unsigned int mx, my; 
-
-        bool worldToMap_flag =  global_costmap_->worldToMap(wx, wy, mx, my);
-
-        //if(worldToMap_flag) {cout << "Successfully transformed from world frame to map frame!" << endl;}
-        
-        //else {cout << "Could not transform from world frame to map frame!" << endl;}
-
-        if(!worldToMap_flag) {
-
-            cout << "ALERT- Could not transform from world frame to map frame!" << endl; 
-            ros::Duration(5.0).sleep();
-
-        }
-
-        map_open_list[mx][my] = 1;
-        
-        q_m.push({mx, my});
-
-        while(!q_m.empty()) {
-
-            pair<unsigned int, unsigned int>  front = q_m.front();
-
-            unsigned int cx = front.first , cy = front.second ; 
-
-            cout << "cx: " << cx  << " cy: " << cy << " q_m.size(): " << q_m.size() << endl;
-            
-            q_m.pop();
-
-            if(map_close_list[cx][cy] != -1) {continue;}
-
-            for(int i = (int)cx- 5 ; i < cx + 5; i++) {
-                
-                for(int j = (int)cy -5 ; j < cy + 5 ; j++) {
-                    
-                    if(i < 0 || j < 0 || i >= size_x || j >= size_y || (i == cx && j == cy)) {continue;}
-
-                    if(map_open_list[i][j] == -1 && map_close_list[i][j] == -1 && has_free_cell_neighbour(i, j)) {
-                        
-                        q_m.push({i,j}); 
-                        map_open_list[i][j] = 1;
-
-                    }
-
-                }
-
-            }
-
-            map_close_list[cx][cy] = 1;
-            
-        }
-
-        cout << "frontier_collection.size(): " << frontier_collection.size() << endl;
-        
-        cout << "END OF ROS::OK while loop! --- sleeping for 2 seconds!" << endl;
-        
-        ros::Duration(2.0).sleep(); 
-        lock.unlock(); 
-
-        cout << "Moving to the frontier medium!"  << endl;
-
-        go_to_frontier_median();
-
-        
-        ros::spinOnce();
-    
-    }
-
-}
-
 
 void Explore::explore_level_four() {
     
@@ -884,25 +730,14 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "explore_node");
 
     ros::NodeHandle nh("explore_node"); 
-
    
     tf2_ros::Buffer buffer(ros::Duration(10));
     tf2_ros::TransformListener tf(buffer);
     
-    
     Explore* explore_one = new Explore(nh, buffer);
-
-    //Explore explore = Explore(nh, buffer);
-
 
     explore_one->explore_level_four();
 
-    
-    //cout << "frontier_collection.size(): " << explore_one->frontier_collection.size() << endl;
-
-
-
-   
     return 0;
 }   
 
