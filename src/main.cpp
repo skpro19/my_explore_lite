@@ -25,7 +25,7 @@ using namespace std;
  
 class Explore{
 
-    struct FrontierPoint{
+    struct Point{
 
         __uint32_t x, y;
 
@@ -34,8 +34,8 @@ class Explore{
     struct Frontier{
 
         __uint32_t num_points; 
-        FrontierPoint median;
-        vector<FrontierPoint> frontier_points;
+        Point median;
+        vector<Point> frontier_points;
 
     };
 
@@ -362,7 +362,7 @@ void Explore::go_to_frontier_median() {
 
     Frontier frontier = frontier_collection[mx_index];
 
-    FrontierPoint median_frontier_point = frontier.median; 
+    Point median_frontier_point = frontier.median; 
 
     __uint32_t median_x = median_frontier_point.x , median_y = median_frontier_point.y;
 
@@ -545,6 +545,7 @@ void Explore::explore_level_four() {
             if(map_close_list[cx][cy] != -1) {continue;}
 
             cout << "Calling is_frontier from the q_m loop!" << endl;
+           
             if(is_frontier(cx, cy)) {
 
                 //cout << "Frontier point detected!" << endl;
@@ -553,7 +554,7 @@ void Explore::explore_level_four() {
 
                 //vector<pair<size_t, size_t> > curr_frontier;
 
-                vector<FrontierPoint> curr_frontier;
+                vector<Point> curr_frontier;
 
                 //curr_frontier.push_back({cx, cy});
 
@@ -577,7 +578,7 @@ void Explore::explore_level_four() {
 
                     if(is_frontier(cx_, cy_)) {
                         
-                        FrontierPoint frontier_point {cx_, cy_};
+                        Point frontier_point {cx_, cy_};
 
                         //cout << "Frontier found inside q_f!" << endl;
 
@@ -606,13 +607,14 @@ void Explore::explore_level_four() {
 
                 __uint32_t frontier_size = curr_frontier.size();
 
-                FrontierPoint median_point = curr_frontier[(int)curr_frontier.size()/2];
-                
-                //Frontier frontier = {frontier_size, median_point, curr_frontier};
+                if(frontier_size > 0) {
 
-                cout << "Pushing the frontier vector to frontier_collection!" << endl;
+                    Point median_point = curr_frontier[(int)curr_frontier.size()/2];
+                    Frontier frontier = {frontier_size, median_point, curr_frontier};
+                    frontier_collection.push_back(frontier);
 
-                //frontier_collection.push_back(frontier);
+                }
+
                 
             }
 
