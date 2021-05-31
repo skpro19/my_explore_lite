@@ -121,7 +121,7 @@ Explore::Explore(ros::NodeHandle &nh, tf2_ros::Buffer &buffer):nh_{nh}{
 
     marker_pub = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 1);
         
-    frontier_array_pub = nh_.advertise<visualization_msgs::MarkerArray>( "visualization_markers_array", 10 );
+    frontier_array_pub = nh_.advertise<visualization_msgs::MarkerArray>( "visualization_markers_array", 10000 );
 
 }
 
@@ -258,6 +258,7 @@ void Explore::publish_markers_array(Frontier &frontier) {
         marker.color.g = 1.0;
         marker.color.b = 1.0;
 
+        marker.frame_locked = true;
 
         frontier_marker_array.markers.push_back(marker);
 
@@ -267,7 +268,7 @@ void Explore::publish_markers_array(Frontier &frontier) {
 
     cout << "cnt:  " << cnt << " sz " << sz <<  endl;
 
-
+    
     ros::Time start = ros::Time::now(); 
     ros::Duration del(15.0);
     ros::Time end = start + del ;
@@ -278,9 +279,11 @@ void Explore::publish_markers_array(Frontier &frontier) {
 
         frontier_array_pub.publish(frontier_marker_array);
     }
+    
 
     //cout << "Loop ends at: " << ros::Time::now().toSec() << endl;
 
+    frontier_array_pub.publish(frontier_marker_array);
 
 }
 
