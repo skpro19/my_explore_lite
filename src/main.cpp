@@ -25,13 +25,27 @@ using namespace std;
  
 class Explore{
 
+    struct FrontierPoint{
+
+        __uint32_t x, y;
+
+    };
+
+    struct Frontier{
+
+        __uint32_t num_points; 
+        FrontierPoint median;
+        vector<FrontierPoint> frontier_points;
+
+    };
+
 
     public:
 
         Explore(ros::NodeHandle &nh, tf2_ros::Buffer &buffer);
         void explore_level_four();
         
-        vector<vector<pair<size_t, size_t> > > frontier_collection;
+        vector<Frontier> frontier_collection;
 
         ros::Publisher frontier_array_pub, frontier_pub, marker_pub; 
 
@@ -43,7 +57,9 @@ class Explore{
         bool has_free_cell_neighbour(int a, int b);
         geometry_msgs::Pose get_currrent_pose_map();    
         void go_to_frontier_median();
-        void publish_markers_array(vector<pair<size_t, size_t> > &frontiers_);
+        //void publish_markers_array(vector<pair<size_t, size_t> > &frontiers_);
+        
+        void publish_markers_array(Frontier &frontier);
         void publish_point(__uint32_t median_x, __uint32_t median_y);
         
         costmap_2d::Costmap2DROS* global_costmap, *local_costmap;
@@ -189,12 +205,12 @@ void Explore::go_to_cell(size_t mx, size_t my) {
 
 }
 
-void Explore::publish_markers_array(vector<pair<size_t, size_t> > &frontiers_) {
+void Explore::publish_markers_array(Frontier &frontier) {
 
     //cout << "INSIDE THE PUBLISH_MARKERS FUNCTION! " << endl;
 
 
-    int sz = (int)frontiers_.size();
+    int sz = (int)frontier.num_points;
     int cnt = 0 ;
         
     cout << "Size of the frontier array: " << sz << endl;
@@ -215,10 +231,8 @@ void Explore::publish_markers_array(vector<pair<size_t, size_t> > &frontiers_) {
         marker.type = visualization_msgs::Marker::SPHERE;
         marker.action = visualization_msgs::Marker::ADD;
 
-        size_t mx = frontiers_[i].first, my = frontiers_[i].second;
+        size_t mx = frontier.frontier_points[i].x, my = frontier.frontier_points[i].y;
 
-        
-        
         double wx, wy, median_wx, median_wy; 
         
         global_costmap_->mapToWorld(mx, my, wx, wy);
@@ -315,7 +329,6 @@ geometry_msgs::Pose Explore::get_currrent_pose_map() {
 
 void Explore::go_to_frontier_median() {
 
-
     cout << "Inside the go_to_frontier_median funtion!" << endl << endl;
     cout << "frontier_collection.size(): " << frontier_collection.size() << endl;
 
@@ -325,10 +338,10 @@ void Explore::go_to_frontier_median() {
         
         //cout << "mx_val: " << mx_val << " frontier_collection[i].size(): " << frontier_collection[i].size() << endl;
 
-        if((int)frontier_collection[i].size() > mx_val) {
+        if((int)frontier_collection[i].num_points > mx_val) {
             
             cout << "Updating mx_index and mx_val" << endl;
-            mx_val = frontier_collection[i].size(); 
+            mx_val = frontier_collection[i].num_points; 
             mx_index = i;
 
             cout << "Updated mx_val: " << mx_val << " mx_index: " << mx_index << endl;
@@ -347,12 +360,11 @@ void Explore::go_to_frontier_median() {
     
     }
 
-    vector<pair<size_t, size_t> > &v = frontier_collection[mx_index];
+    Frontier frontier = frontier_collection[mx_index];
 
-    __uint32_t median_pos = v.size()/2; 
+    FrontierPoint median_frontier_point = frontier.median; 
 
-    __uint32_t median_x = v[median_pos].first , median_y = v[median_pos].second;
-
+    __uint32_t median_x = median_frontier_point.x , median_y = median_frontier_point.y;
 
     geometry_msgs::Pose current_pose = get_currrent_pose_map();
     
@@ -369,7 +381,7 @@ void Explore::go_to_frontier_median() {
 
     cout << "Trying to publish the markers for the frontier - V" << endl; 
     
-    publish_markers_array(v);
+    publish_markers_array(frontier);
 
     ros::Duration(2.0).sleep();
     
@@ -526,19 +538,22 @@ void Explore::explore_level_four() {
 
             unsigned int cx = front.first , cy = front.second ; 
 
-            cout << "cx: " << cx  << " cy: " << cy << " q_m.size(): " << q_m.size() << endl;
+            //cout << "cx: " << cx  << " cy: " << cy << " q_m.size(): " << q_m.size() << endl;
             
             q_m.pop();
 
             if(map_close_list[cx][cy] != -1) {continue;}
 
+            cout << "Calling is_frontier from the q_m loop!" << endl;
             if(is_frontier(cx, cy)) {
 
-                cout << "Frontier point detected!" << endl;
+                //cout << "Frontier point detected!" << endl;
 
                 queue<pair<size_t, size_t> >q_f;
 
-                vector<pair<size_t, size_t> > curr_frontier;
+                //vector<pair<size_t, size_t> > curr_frontier;
+
+                vector<FrontierPoint> curr_frontier;
 
                 //curr_frontier.push_back({cx, cy});
 
@@ -552,17 +567,21 @@ void Explore::explore_level_four() {
 
                     unsigned int cx_ = front_.first, cy_ = front_.second;
 
-                    cout << "cx_: " << cx_ << " cy_: " << cy_ <<  " sz: " << q_f.size() << endl;
+                    //cout << "cx_: " << cx_ << " cy_: " << cy_ <<  " sz: " << q_f.size() << endl;
 
                     q_f.pop();
 
                     if(frontier_close_list[cx_][cy_] != -1 || map_close_list[cx_][cy_] != -1) {continue;}
 
+                    cout << "Calling is_frontier from the q_f loop!" << endl;
+
                     if(is_frontier(cx_, cy_)) {
                         
-                        cout << "Frontier found inside q_f!" << endl;
+                        FrontierPoint frontier_point {cx_, cy_};
 
-                        curr_frontier.push_back({cx_, cy_});
+                        //cout << "Frontier found inside q_f!" << endl;
+
+                        curr_frontier.push_back(frontier_point);
                         
                         for(int i = cx_ - 1; i <= cx_ + 1; i++) {
                             
@@ -585,7 +604,15 @@ void Explore::explore_level_four() {
 
                 }
 
-                frontier_collection.push_back(curr_frontier);
+                __uint32_t frontier_size = curr_frontier.size();
+
+                FrontierPoint median_point = curr_frontier[(int)curr_frontier.size()/2];
+                
+                //Frontier frontier = {frontier_size, median_point, curr_frontier};
+
+                cout << "Pushing the frontier vector to frontier_collection!" << endl;
+
+                //frontier_collection.push_back(frontier);
                 
             }
 
