@@ -56,7 +56,8 @@ class Explore{
         void go_to_cell(size_t mx, size_t my);
         bool has_free_cell_neighbour(int a, int b);
         geometry_msgs::Pose get_currrent_pose_map();    
-        void go_to_frontier_median();
+        void go_to_frontier_median(vector<Frontier> &v);
+        
         //void publish_markers_array(vector<pair<size_t, size_t> > &frontiers_);
         
         void publish_markers_array(Frontier &frontier);
@@ -327,40 +328,19 @@ geometry_msgs::Pose Explore::get_currrent_pose_map() {
 
 }
 
-void Explore::go_to_frontier_median() {
+void Explore::go_to_frontier_median(vector<Frontier> &v) {
 
-    cout << "Inside the go_to_frontier_median funtion!" << endl << endl;
-    cout << "frontier_collection.size(): " << frontier_collection.size() << endl;
-
-    int  mx_index = -1, mx_val =-1; 
-
-    for(int i = 0; i < frontier_collection.size(); i++) {
-        
-        //cout << "mx_val: " << mx_val << " frontier_collection[i].size(): " << frontier_collection[i].size() << endl;
-
-        if((int)frontier_collection[i].num_points > mx_val) {
-            
-            cout << "Updating mx_index and mx_val" << endl;
-            mx_val = frontier_collection[i].num_points; 
-            mx_index = i;
-
-            cout << "Updated mx_val: " << mx_val << " mx_index: " << mx_index << endl;
-
+    sort(v.rbegin(), v.rend(), 
+        [](Frontier &a, Frontier &b){
+            return a.num_points < b.num_points;
         }
+    );
 
-    }
-    
-    cout << "mx_index: " << mx_index << " mx_val: " << mx_val << endl;
 
-    if(mx_index == -1) {
 
-        cout << "ALERT: mx_index is -1" << endl;
-        ros::Duration(3.0).sleep();
-        return;
-    
-    }
+    Frontier frontier = frontier_collection.front();
 
-    Frontier frontier = frontier_collection[mx_index];
+    cout << "frontier_size: " << frontier.num_points << endl;
 
     Point median_frontier_point = frontier.median; 
 
@@ -658,7 +638,7 @@ void Explore::explore_level_four() {
 
         cout << "Moving to the frontier medium!"  << endl;
 
-        go_to_frontier_median();
+        go_to_frontier_median(frontier_collection);
 
         
         ros::spinOnce();
